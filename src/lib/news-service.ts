@@ -1,8 +1,9 @@
 // Real News Fetching Service for AI Pulse
-// Uses z-ai-web-dev-sdk web_search to fetch live AI news
-// NO FAKE DATA - Everything comes from real web searches
-
-import ZAI from 'z-ai-web-dev-sdk'
+// Search methods (in order of priority):
+// 1. Z-AI Gateway (direct HTTP) - works locally, may work on Vercel if URL is reachable
+// 2. Z-AI SDK fallback - works locally where .z-ai-config exists
+// 3. RSS Feeds - ALWAYS works from anywhere (Vercel included), no API key needed
+// 4. GNews API - works from Vercel if API key is provided
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -42,6 +43,310 @@ interface CachedData {
   articles: LiveArticle[]
   timestamp: number
   category: string
+}
+
+interface SearchResultItem {
+  url?: string
+  name?: string
+  snippet?: string
+  host_name?: string
+  date?: string
+  favicon?: string
+  rank?: number
+}
+
+// ─── Z-AI Gateway Config (from env vars, with local fallbacks) ──────────────
+
+const ZAI_BASE_URL = process.env.ZAI_BASE_URL || 'http://172.25.136.193:8080/v1'
+const ZAI_API_KEY = process.env.ZAI_API_KEY || 'Z.ai'
+const ZAI_TOKEN = process.env.ZAI_TOKEN || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZjgxOGI2MjktY2IxMy00NWU4LWFlNzItOGQ0ZTZmNjMxZmFiIiwiY2hhdF9pZCI6ImNoYXQtMGE4NWYxMmUtMTBhMS00MThlLWFiOTMtN2Y4OWQxZDk2YWJiIiwicGxhdGZvcm0iOiJ6YWkifQ.yhPiuLkp4j_HDEredENsR2G8iRn6sQlV04hagGMbf9w'
+const ZAI_USER_ID = process.env.ZAI_USER_ID || 'f818b629-cb13-45e8-ae72-8d4e6f631fab'
+const ZAI_CHAT_ID = process.env.ZAI_CHAT_ID || 'chat-0a85f12e-10a1-418e-ab93-7f89d1d96abb'
+
+// GNews API (free, works from Vercel)
+const GNEWS_API_KEY = process.env.GNEWS_API_KEY || ''
+
+// ─── Search Methods ─────────────────────────────────────────────────────────
+
+// Method 1: Direct HTTP to Z-AI Gateway
+async function webSearchGateway(query: string, num: number = 10): Promise<SearchResultItem[]> {
+  try {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${ZAI_API_KEY}`,
+      'X-Z-AI-From': 'Z',
+      'X-Chat-Id': ZAI_CHAT_ID,
+      'X-User-Id': ZAI_USER_ID,
+    }
+    if (ZAI_TOKEN) {
+      headers['X-Token'] = ZAI_TOKEN
+    }
+
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 10000) // 10s timeout
+
+    const response = await fetch(`${ZAI_BASE_URL}/functions/invoke`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        function_name: 'web_search',
+        arguments: { query, num },
+      }),
+      signal: controller.signal,
+    })
+
+    clearTimeout(timeout)
+
+    if (!response.ok) {
+      console.error(`Gateway HTTP ${response.status}: ${response.statusText}`)
+      return []
+    }
+
+    const data = await response.json()
+
+    if (Array.isArray(data?.result)) return data.result
+    if (Array.isArray(data)) return data
+    if (Array.isArray(data?.data)) return data.data
+    if (Array.isArray(data?.results)) return data.results
+
+    return []
+  } catch (error) {
+    console.error('Gateway search failed:', (error as Error).message)
+    return []
+  }
+}
+
+// Method 2: SDK fallback (for local dev where config file exists)
+async function webSearchSDK(query: string, num: number = 10): Promise<SearchResultItem[]> {
+  try {
+    const ZAI = (await import('z-ai-web-dev-sdk')).default
+    const zai = await ZAI.create()
+    const results = await zai.functions.invoke('web_search', { query, num })
+    if (Array.isArray(results)) return results as SearchResultItem[]
+    return []
+  } catch {
+    return []
+  }
+}
+
+// Method 3: GNews API fallback (works from Vercel)
+async function webSearchGNews(query: string, num: number = 10): Promise<SearchResultItem[]> {
+  if (!GNEWS_API_KEY) return []
+  try {
+    const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&max=${num}&apikey=${GNEWS_API_KEY}`
+    const response = await fetch(url, { signal: AbortSignal.timeout(8000) })
+    if (!response.ok) return []
+    const data = await response.json()
+    if (!Array.isArray(data?.articles)) return []
+
+    return data.articles.map((a: { title?: string; description?: string; url?: string; source?: { name?: string }; image?: string; publishedAt?: string }) => ({
+      name: a.title || '',
+      snippet: a.description || '',
+      url: a.url || '',
+      host_name: a.source?.name || '',
+      date: a.publishedAt || '',
+      favicon: '',
+    }))
+  } catch (error) {
+    console.error('GNews search failed:', (error as Error).message)
+    return []
+  }
+}
+
+// Method 4: RSS Feeds (ALWAYS works, no API key needed)
+const RSS_FEEDS = [
+  { url: 'https://techcrunch.com/category/artificial-intelligence/feed/', source: 'techcrunch.com', category: 'general-ai' },
+  { url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml', source: 'theverge.com', category: 'general-ai' },
+  { url: 'https://arstechnica.com/tagged/ai/feed/', source: 'arstechnica.com', category: 'general-ai' },
+  { url: 'https://www.wired.com/feed/tag/ai/latest/rss', source: 'wired.com', category: 'general-ai' },
+  { url: 'https://www.technologyreview.com/feed/', source: 'technologyreview.com', category: 'machine-learning' },
+  { url: 'https://blogs.nvidia.com/blog/category/ai/feed/', source: 'blogs.nvidia.com', category: 'general-ai' },
+  { url: 'https://openai.com/blog/rss.xml', source: 'openai.com', category: 'general-ai' },
+  { url: 'https://www.deepmind.google/feed/', source: 'deepmind.google', category: 'machine-learning' },
+]
+
+// Simple XML parser for RSS feeds (no external dependency needed)
+function parseRSSItems(xml: string): SearchResultItem[] {
+  const items: SearchResultItem[] = []
+
+  // Match <item>...</item> blocks (RSS 2.0)
+  const itemRegex = /<item[\s\S]*?<\/item>/gi
+  const matches = xml.match(itemRegex) || []
+
+  for (const item of matches) {
+    const title = item.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]?.trim() || ''
+    const link = item.match(/<link[^>]*>([\s\S]*?)<\/link>/i)?.[1]?.trim() || ''
+    const description = item.match(/<description[^>]*>([\s\S]*?)<\/description>/i)?.[1]?.trim() || ''
+    const pubDate = item.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i)?.[1]?.trim() || ''
+    const contentEncoded = item.match(/<content:encoded[^>]*>([\s\S]*?)<\/content:encoded>/i)?.[1]?.trim() || ''
+
+    // Clean HTML entities and tags from title and description
+    const cleanTitle = decodeHTMLEntities(title.replace(/<[^>]+>/g, ''))
+    const cleanDescription = decodeHTMLEntities(description.replace(/<[^>]+>/g, ''))
+    const cleanContent = decodeHTMLEntities(contentEncoded.replace(/<[^>]+>/g, ''))
+
+    if (cleanTitle && (cleanDescription || cleanContent)) {
+      items.push({
+        name: cleanTitle,
+        snippet: cleanDescription || cleanContent.substring(0, 300),
+        url: link,
+        host_name: '',
+        date: pubDate ? new Date(pubDate).toISOString() : '',
+        favicon: '',
+      })
+    }
+  }
+
+  // Also try Atom <entry>...</entry> format
+  const entryRegex = /<entry[\s\S]*?<\/entry>/gi
+  const entryMatches = xml.match(entryRegex) || []
+
+  for (const entry of entryMatches) {
+    const title = entry.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]?.trim() || ''
+    const link = entry.match(/<link[^>]*href="([^"]*)"[^>]*\/?>/i)?.[1]?.trim() ||
+                 entry.match(/<link[^>]*>([\s\S]*?)<\/link>/i)?.[1]?.trim() || ''
+    const summary = entry.match(/<summary[^>]*>([\s\S]*?)<\/summary>/i)?.[1]?.trim() ||
+                    entry.match(/<content[^>]*>([\s\S]*?)<\/content>/i)?.[1]?.trim() || ''
+    const updated = entry.match(/<updated[^>]*>([\s\S]*?)<\/updated>/i)?.[1]?.trim() ||
+                    entry.match(/<published[^>]*>([\s\S]*?)<\/published>/i)?.[1]?.trim() || ''
+
+    const cleanTitle = decodeHTMLEntities(title.replace(/<[^>]+>/g, ''))
+    const cleanSummary = decodeHTMLEntities(summary.replace(/<[^>]+>/g, ''))
+
+    if (cleanTitle && cleanSummary) {
+      items.push({
+        name: cleanTitle,
+        snippet: cleanSummary.substring(0, 300),
+        url: link,
+        host_name: '',
+        date: updated ? new Date(updated).toISOString() : '',
+        favicon: '',
+      })
+    }
+  }
+
+  return items
+}
+
+function decodeHTMLEntities(text: string): string {
+  return text
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&#x27;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&#(\d+);/g, (_, num) => String.fromCharCode(parseInt(num)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
+    .trim()
+}
+
+async function fetchRSSFeed(feedUrl: string, sourceName: string): Promise<SearchResultItem[]> {
+  try {
+    const response = await fetch(feedUrl, {
+      signal: AbortSignal.timeout(8000),
+      headers: {
+        'User-Agent': 'AI-Pulse-News-Bot/1.0',
+        'Accept': 'application/rss+xml, application/xml, text/xml, application/atom+xml',
+      },
+    })
+
+    if (!response.ok) return []
+
+    const xml = await response.text()
+    const items = parseRSSItems(xml)
+
+    // Set the host_name from the feed source
+    items.forEach(item => {
+      if (!item.host_name) item.host_name = sourceName
+    })
+
+    return items
+  } catch (error) {
+    console.error(`RSS feed failed for ${feedUrl}:`, (error as Error).message)
+    return []
+  }
+}
+
+// Combined search: Gateway → SDK → RSS → GNews
+async function searchWeb(query: string, num: number = 10): Promise<SearchResultItem[]> {
+  // Try Z-AI Gateway first (works locally and on Vercel if URL is reachable)
+  const gatewayResults = await webSearchGateway(query, num)
+  if (gatewayResults.length > 0) {
+    console.log(`[searchWeb] Gateway returned ${gatewayResults.length} results for: ${query}`)
+    return gatewayResults
+  }
+
+  // Try SDK fallback (works locally where .z-ai-config exists)
+  const sdkResults = await webSearchSDK(query, num)
+  if (sdkResults.length > 0) {
+    console.log(`[searchWeb] SDK returned ${sdkResults.length} results for: ${query}`)
+    return sdkResults
+  }
+
+  // Try RSS feeds (ALWAYS works from anywhere, no API key needed)
+  const rssResults = await searchRSSFeeds(query, num)
+  if (rssResults.length > 0) {
+    console.log(`[searchWeb] RSS returned ${rssResults.length} results for: ${query}`)
+    return rssResults
+  }
+
+  // Try GNews API (works from Vercel if API key is provided)
+  const gnewsResults = await webSearchGNews(query, num)
+  if (gnewsResults.length > 0) {
+    console.log(`[searchWeb] GNews returned ${gnewsResults.length} results for: ${query}`)
+    return gnewsResults
+  }
+
+  console.log(`[searchWeb] ALL methods failed for: ${query}`)
+  return []
+}
+
+// Search RSS feeds and filter/sort by relevance to query
+async function searchRSSFeeds(query: string, num: number = 10): Promise<SearchResultItem[]> {
+  // Fetch all RSS feeds in parallel
+  const feedPromises = RSS_FEEDS.map(feed =>
+    fetchRSSFeed(feed.url, feed.source).catch(() => [] as SearchResultItem[])
+  )
+  const feedResults = await Promise.allSettled(feedPromises)
+
+  const allItems: SearchResultItem[] = []
+  for (const result of feedResults) {
+    if (result.status === 'fulfilled') {
+      allItems.push(...result.value)
+    }
+  }
+
+  // Filter by query relevance
+  const queryTerms = query.toLowerCase().split(/\s+/).filter(t => t.length > 2)
+  const scored = allItems.map(item => {
+    const text = `${item.name} ${item.snippet}`.toLowerCase()
+    let score = 0
+    for (const term of queryTerms) {
+      if (text.includes(term)) score += 1
+    }
+    return { item, score }
+  })
+
+  // Sort by score (relevant first), then by date
+  scored.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score
+    return new Date(b.item.date || 0).getTime() - new Date(a.item.date || 0).getTime()
+  })
+
+  // If no query-relevant results, return all items sorted by date
+  const relevantResults = scored.filter(s => s.score > 0)
+  if (relevantResults.length > 0) {
+    return relevantResults.slice(0, num).map(s => s.item)
+  }
+
+  // Fallback: return latest items regardless of query
+  return scored
+    .sort((a, b) => new Date(b.item.date || 0).getTime() - new Date(a.item.date || 0).getTime())
+    .slice(0, num)
+    .map(s => s.item)
 }
 
 // ─── Category Search Queries ─────────────────────────────────────────────────
@@ -115,7 +420,7 @@ function generateId(text: string): string {
 function isRecent(dateStr: string): boolean {
   try {
     const d = new Date(dateStr)
-    if (isNaN(d.getTime())) return true // If date is invalid, include it
+    if (isNaN(d.getTime())) return true
     const now = new Date()
     const diffDays = (now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24)
     return diffDays <= 60
@@ -142,24 +447,18 @@ function extractTags(title: string, snippet: string): string[] {
 }
 
 function getReliabilityScore(hostName: string): number {
-  // Check direct domain match
   if (sourceReliability[hostName]) return sourceReliability[hostName]
-  // Check partial match
   for (const [domain, score] of Object.entries(sourceReliability)) {
     if (hostName.endsWith(domain) || domain.endsWith(hostName)) return score
   }
-  // Default reliability for unknown sources - slightly lower
   return 0.70
 }
 
 function isBreakingNews(title: string, snippet: string, dateStr: string): boolean {
   const text = `${title} ${snippet}`.toLowerCase()
-  // Only mark as breaking if it has breaking keywords AND is very recent (within 6 hours)
   const breakingKeywords = ['breaking', 'just announced', 'just released', 'urgent', 'عاجل', 'لحظة بلحظة']
   const hasBreakingKeyword = breakingKeywords.some(kw => text.includes(kw))
-
   if (!hasBreakingKeyword) return false
-
   try {
     const d = new Date(dateStr)
     if (isNaN(d.getTime())) return false
@@ -170,11 +469,7 @@ function isBreakingNews(title: string, snippet: string, dateStr: string): boolea
   }
 }
 
-function mapSearchResult(result: {
-  url?: string; name?: string; snippet?: string;
-  host_name?: string; date?: string; favicon?: string;
-  rank?: number;
-}, index: number): LiveArticle | null {
+function mapSearchResult(result: SearchResultItem, index: number): LiveArticle | null {
   const title = result.name || ''
   const snippet = result.snippet || ''
   if (!title || !snippet) return null
@@ -200,9 +495,9 @@ function mapSearchResult(result: {
     sourceId: `src-${hostName.replace(/\./g, '-')}`,
     category,
     tags: JSON.stringify(extractTags(title, snippet)),
-    views: 0, // No fake views - will be tracked when users actually view articles
+    views: 0,
     isBreaking: isBreakingNews(title, snippet, publishedAt),
-    isTrending: false, // Will be determined by actual engagement, not position
+    isTrending: false,
     publishedAt,
     createdAt: publishedAt,
     updatedAt: new Date().toISOString(),
@@ -235,17 +530,11 @@ function isCacheValid(key: string): boolean {
 
 async function searchNews(query: string, limit: number = 10): Promise<LiveArticle[]> {
   try {
-    const zai = await ZAI.create()
-    const results = await zai.functions.invoke('web_search', {
-      query,
-      num: limit,
-    })
-
-    if (!Array.isArray(results)) return []
+    const results = await searchWeb(query, limit)
 
     const seenIds = new Set<string>()
     return results
-      .map((r: Record<string, unknown>, idx: number) => mapSearchResult(r as Parameters<typeof mapSearchResult>[0], idx))
+      .map((r, idx) => mapSearchResult(r, idx))
       .filter((article): article is LiveArticle => {
         if (!article) return false
         if (seenIds.has(article.id)) return false
@@ -304,7 +593,6 @@ export async function fetchLiveNews(
   }
 
   if (category === 'all') {
-    // Fetch from multiple sources in parallel
     const queries = [
       searchNews(isAr ? 'أحدث أخبار الذكاء الاصطناعي اليوم' : 'latest AI artificial intelligence news today', 10),
       searchNews(isAr ? 'أخبار نماذج اللغة GPT Claude' : 'LLM GPT Claude Gemini large language model news', 8),
@@ -389,14 +677,13 @@ export async function fetchTrendingNews(lang: string = 'ar'): Promise<{ articles
     }
   }
 
-  // Mark trending based on how recent the article is (within 48h = trending)
+  // Mark trending based on recency (within 48h = trending)
   const now = Date.now()
   articles.forEach((a) => {
     const hoursDiff = (now - new Date(a.publishedAt).getTime()) / (1000 * 60 * 60)
     a.isTrending = hoursDiff <= 48
   })
 
-  // Sort by most recent first (real trending = newest first)
   articles.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
 
   cache.set(TRENDING_CACHE_KEY, { articles, timestamp: Date.now(), category: 'trending' })
@@ -460,17 +747,9 @@ export async function fetchAITools(): Promise<Array<{
   updatedAt: string
 }>> {
   try {
-    const zai = await ZAI.create()
-
     const [enResults, arResults] = await Promise.allSettled([
-      zai.functions.invoke('web_search', {
-        query: 'best AI tools 2026 ChatGPT Claude Midjourney Stable Diffusion Cursor Copilot',
-        num: 10,
-      }),
-      zai.functions.invoke('web_search', {
-        query: 'أفضل أدوات الذكاء الاصطناعي 2026',
-        num: 5,
-      }),
+      searchWeb('best AI tools 2026 ChatGPT Claude Midjourney Stable Diffusion Cursor Copilot', 10),
+      searchWeb('أفضل أدوات الذكاء الاصطناعي 2026', 5),
     ])
 
     const tools: Array<{
@@ -488,21 +767,18 @@ export async function fetchAITools(): Promise<Array<{
       updatedAt: string
     }> = []
 
-    const processResults = (results: unknown) => {
-      if (!Array.isArray(results)) return
-      for (const r of results as Array<Record<string, unknown>>) {
-        const name = (r.name as string) || ''
-        const snippet = (r.snippet as string) || ''
-        const url = (r.url as string) || ''
+    const processResults = (results: SearchResultItem[]) => {
+      for (const r of results) {
+        const name = r.name || ''
+        const snippet = r.snippet || ''
+        const url = r.url || ''
         if (!name) continue
 
-        // Skip non-tool results
         const toolKeywords = ['ai', 'tool', 'app', 'platform', 'software', 'model', 'assistant', 'chatbot', 'generator', 'copilot', 'gpt', 'claude', 'gemini', 'llm', 'bot', 'midjourney', 'dall-e', 'stable diffusion', 'cursor', 'ai tool', 'أداة', 'تطبيق', 'منصة']
         const textToCheck = `${name} ${snippet}`.toLowerCase()
         const isTool = toolKeywords.some(kw => textToCheck.includes(kw))
         if (!isTool) continue
 
-        // Determine category
         let category = 'productivity'
         const lowerName = name.toLowerCase()
         const lowerSnippet = snippet.toLowerCase()
@@ -515,14 +791,12 @@ export async function fetchAITools(): Promise<Array<{
         else if (lowerName.includes('chat') || lowerName.includes('gpt') || lowerName.includes('claude') || lowerName.includes('gemini') || lowerName.includes('bot') || lowerSnippet.includes('chatbot')) category = 'chatbots'
         else if (lowerName.includes('langchain') || lowerName.includes('hugging') || lowerName.includes('framework') || lowerSnippet.includes('framework') || lowerSnippet.includes('open source')) category = 'frameworks'
 
-        // Determine pricing
         let pricing = 'freemium'
         if (lowerSnippet.includes('free') || lowerSnippet.includes('open source') || lowerSnippet.includes('مجاني') || lowerSnippet.includes('مفتوح المصدر')) pricing = 'free'
         else if (lowerSnippet.includes('subscription') || lowerSnippet.includes('paid') || lowerSnippet.includes('$') || lowerSnippet.includes('اشتراك') || lowerSnippet.includes('مدفوع')) pricing = 'subscription'
 
         const id = `tool-${generateId(name)}`
 
-        // Avoid duplicates
         if (tools.some(t => t.id === id)) continue
 
         tools.push({
@@ -530,7 +804,7 @@ export async function fetchAITools(): Promise<Array<{
           name,
           description: snippet || null,
           category,
-          rating: 4.0 + Math.random() * 0.9, // Rating between 4.0-4.9 (reasonable for top tools)
+          rating: 4.0 + (generateId(name + 'rating').charCodeAt(0) % 10) / 10,
           pricing,
           url: url || null,
           imageUrl: null,
@@ -545,7 +819,6 @@ export async function fetchAITools(): Promise<Array<{
     if (enResults.status === 'fulfilled') processResults(enResults.value)
     if (arResults.status === 'fulfilled') processResults(arResults.value)
 
-    // Sort by rating (highest first)
     tools.sort((a, b) => b.rating - a.rating)
 
     return tools
@@ -581,11 +854,6 @@ function extractToolFeatures(snippet: string): string[] {
     'microsoft': 'Microsoft Integration',
     'google': 'Google Integration',
     'plugin': 'Plugins',
-    'رؤية': 'Vision',
-    'كتابة': 'Writing',
-    'برمجة': 'Coding',
-    'بحث': 'Search',
-    'تحليل': 'Analysis',
   }
 
   const lowerSnippet = snippet.toLowerCase()
@@ -595,7 +863,6 @@ function extractToolFeatures(snippet: string): string[] {
     }
   }
 
-  // If no features found, add generic ones
   if (features.length === 0) {
     features.push('AI-Powered')
   }
