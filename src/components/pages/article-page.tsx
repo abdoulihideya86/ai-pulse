@@ -674,8 +674,8 @@ export function ArticlePage() {
           >
             {title}
             {isAr && article.titleAr === article.titleEn && (
-              <Badge variant="outline" className="ms-3 text-[10px] px-2 py-0.5 align-middle border-muted-foreground/40 text-muted-foreground font-mono">
-                EN
+              <Badge variant="outline" className="ms-3 text-[10px] px-2 py-0.5 align-middle border-muted-foreground/40 text-muted-foreground">
+                English
               </Badge>
             )}
           </h1>

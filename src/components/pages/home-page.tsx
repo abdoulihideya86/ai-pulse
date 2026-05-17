@@ -436,14 +436,9 @@ function CategoryCard({ category, language, onClick, count }: { category: Catego
           >
             <Icon className="size-7" style={{ color: category.color }} />
           </div>
-          <div className="space-y-1">
-            <h3 className="font-bold text-sm leading-tight">
-              {isRTL ? category.nameAr : category.nameEn}
-            </h3>
-            <p className="text-xs text-muted-foreground" dir="ltr">
-              {isRTL ? category.nameEn : category.nameAr}
-            </p>
-          </div>
+          <h3 className="font-bold text-sm leading-tight">
+            {isRTL ? category.nameAr : category.nameEn}
+          </h3>
           <Badge variant="secondary" className="text-[10px]" style={{ borderColor: `${category.color}30` }}>
             {count} {isRTL ? 'مقال' : 'articles'}
           </Badge>
@@ -617,15 +612,15 @@ function TrendingArticleCard({ article, language, index }: { article: Article; l
         </div>
 
         <CardContent className="p-4 space-y-3">
-          <h3 className="font-bold leading-relaxed line-clamp-2 group-hover:text-primary transition-colors text-sm">
+          <h3 className="font-bold leading-relaxed line-clamp-2 group-hover:text-primary transition-colors text-sm" dir={isRTL && article.titleAr === article.titleEn ? 'ltr' : undefined}>
             {isRTL ? article.titleAr : article.titleEn}
-            {isRTL && article.titleAr === article.titleEn && (
-              <Badge variant="outline" className="ms-2 text-[9px] px-1.5 py-0 align-middle border-muted-foreground/40 text-muted-foreground font-mono">
-                EN
-              </Badge>
-            )}
           </h3>
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            {isRTL && article.titleAr === article.titleEn && (
+              <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-muted-foreground/40 text-muted-foreground">
+                English
+              </Badge>
+            )}
             <span className="flex items-center gap-1">
               <Clock className="size-3" />
               {timeAgo(article.publishedAt, isRTL)}
@@ -965,13 +960,8 @@ function LatestArticleCard({ article, language }: { article: Article; language: 
           </div>
 
           {/* Title */}
-          <h3 className="font-bold leading-relaxed line-clamp-2 group-hover:text-primary transition-colors">
+          <h3 className="font-bold leading-relaxed line-clamp-2 group-hover:text-primary transition-colors" dir={isRTL && article.titleAr === article.titleEn ? 'ltr' : undefined}>
             {isRTL ? article.titleAr : article.titleEn}
-            {isRTL && article.titleAr === article.titleEn && (
-              <Badge variant="outline" className="ms-2 text-[9px] px-1.5 py-0 align-middle border-muted-foreground/40 text-muted-foreground font-mono">
-                EN
-              </Badge>
-            )}
           </h3>
 
           {/* Summary */}
