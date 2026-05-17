@@ -46,37 +46,39 @@ interface CachedData {
 // ─── Category Search Queries ─────────────────────────────────────────────────
 
 const categorySearchQueries: Record<string, { en: string; ar: string }> = {
-  'general-ai': { en: 'artificial intelligence latest news 2026', ar: 'أحدث أخبار الذكاء الاصطناعي 2026' },
-  'computer-vision': { en: 'computer vision AI news breakthroughs 2026', ar: 'أخبار الرؤية الحاسوبية والذكاء الاصطناعي' },
-  'robotics': { en: 'robotics AI automation news 2026', ar: 'أخبار الروبوتات والأتمتة الذكية' },
-  'ai-ethics': { en: 'AI ethics regulation policy news 2026', ar: 'أخلاقيات الذكاء الاصطناعي والتنظيمات' },
-  'nlp': { en: 'natural language processing NLP LLM news 2026', ar: 'معالجة اللغات الطبيعية والنماذج اللغوية' },
-  'machine-learning': { en: 'machine learning research news 2026', ar: 'أخبار تعلم الآلة والأبحاث' },
-  'generative-ai': { en: 'generative AI tools applications news 2026', ar: 'أدوات وتطبيقات الذكاء الاصطناعي التوليدي' },
-  'ai-policy': { en: 'AI policy regulation government news 2026', ar: 'سياسات وتنظيمات الذكاء الاصطناعي' },
+  'general-ai': { en: 'artificial intelligence LLM GPT Claude Gemini latest news', ar: 'أحدث أخبار الذكاء الاصطناعي والنماذج اللغوية' },
+  'computer-vision': { en: 'computer vision AI image recognition deepfake detection news', ar: 'أخبار الرؤية الحاسوبية والتعرف على الصور' },
+  'robotics': { en: 'robotics AI automation humanoid robot news', ar: 'أخبار الروبوتات والأتمتة الذكية' },
+  'ai-ethics': { en: 'AI ethics bias fairness responsible AI news', ar: 'أخلاقيات الذكاء الاصطناعي والتحيز' },
+  'nlp': { en: 'NLP natural language processing speech recognition news', ar: 'معالجة اللغات الطبيعية والتعرف على الكلام' },
+  'machine-learning': { en: 'machine learning deep learning research paper news', ar: 'أخبار تعلم الآلة والتعلم العميق والأبحاث' },
+  'generative-ai': { en: 'generative AI DALL-E Midjourney Stable Diffusion AI tools apps', ar: 'أدوات وتطبيقات الذكاء الاصطناعي التوليدي' },
+  'ai-policy': { en: 'AI regulation policy EU AI Act government legislation news', ar: 'سياسات وتنظيمات الذكاء الاصطناعي القوانين' },
 }
 
-// Map search result categories
+// Map search result keywords to categories
 const keywordToCategory: Record<string, string> = {
   'gpt': 'general-ai', 'openai': 'general-ai', 'llm': 'general-ai', 'language model': 'general-ai',
   'gemini': 'general-ai', 'claude': 'general-ai', 'anthropic': 'general-ai', 'mistral': 'general-ai',
-  'chatbot': 'general-ai', 'chatgpt': 'general-ai',
+  'chatbot': 'general-ai', 'chatgpt': 'general-ai', 'copilot': 'general-ai',
   'vision': 'computer-vision', 'image recognition': 'computer-vision', 'deepfake': 'computer-vision',
-  'detection': 'computer-vision', 'imaging': 'computer-vision',
+  'detection': 'computer-vision', 'imaging': 'computer-vision', 'face': 'computer-vision',
   'robot': 'robotics', 'robotic': 'robotics', 'autonomous': 'robotics', 'humanoid': 'robotics',
-  'self-driving': 'robotics', 'waymo': 'robotics',
+  'self-driving': 'robotics', 'waymo': 'robotics', 'tesla': 'robotics',
   'ethic': 'ai-ethics', 'bias': 'ai-ethics', 'fairness': 'ai-ethics', 'responsible': 'ai-ethics',
   'nlp': 'nlp', 'natural language': 'nlp', 'translation': 'nlp', 'speech': 'nlp',
-  'text': 'nlp', 'sentiment': 'nlp',
+  'text-to-speech': 'nlp', 'sentiment': 'nlp',
   'machine learning': 'machine-learning', 'deep learning': 'machine-learning', 'research': 'machine-learning',
   'neural': 'machine-learning', 'training': 'machine-learning', 'stanford': 'machine-learning',
   'generative': 'generative-ai', 'dall-e': 'generative-ai', 'midjourney': 'generative-ai',
-  'stable diffusion': 'generative-ai', 'copilot': 'generative-ai', 'tool': 'generative-ai',
-  'app': 'generative-ai', 'cursor': 'generative-ai', 'figma ai': 'generative-ai',
+  'stable diffusion': 'generative-ai', 'sora': 'generative-ai', 'runway': 'generative-ai',
+  'figma ai': 'generative-ai', 'cursor': 'generative-ai', 'ai tool': 'generative-ai',
   'regulation': 'ai-policy', 'policy': 'ai-policy', 'eu ai': 'ai-policy', 'law': 'ai-policy',
-  'government': 'ai-policy', 'legislation': 'ai-policy', 'ban': 'ai-policy',
+  'government': 'ai-policy', 'legislation': 'ai-policy', 'ban': 'ai-policy', 'act': 'ai-policy',
   'healthcare': 'machine-learning', 'medical': 'machine-learning', 'diagnosis': 'machine-learning',
   'investment': 'general-ai', 'funding': 'general-ai', 'billion': 'general-ai',
+  'apple': 'general-ai', 'google': 'general-ai', 'microsoft': 'general-ai', 'meta': 'general-ai',
+  'nvidia': 'general-ai',
 }
 
 function detectCategory(title: string, snippet: string): string {
@@ -100,93 +102,12 @@ function generateId(text: string): string {
 function isRecent(dateStr: string): boolean {
   try {
     const d = new Date(dateStr)
+    if (isNaN(d.getTime())) return true // If date is invalid, include it
     const now = new Date()
     const diffDays = (now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24)
-    return diffDays <= 30
+    return diffDays <= 60
   } catch {
     return true
-  }
-}
-
-// ─── In-Memory Cache ─────────────────────────────────────────────────────────
-
-const cache = new Map<string, CachedData>()
-const CACHE_TTL = 15 * 60 * 1000 // 15 minutes
-const ALL_CACHE_KEY = '__all__'
-
-function isCacheValid(key: string): boolean {
-  const cached = cache.get(key)
-  if (!cached) return false
-  return Date.now() - cached.timestamp < CACHE_TTL
-}
-
-// ─── Fetch News via Web Search ───────────────────────────────────────────────
-
-async function searchAndConvert(
-  query: string,
-  lang: 'en' | 'ar',
-  category: string,
-  limit: number = 10
-): Promise<LiveArticle[]> {
-  try {
-    const zai = await ZAI.create()
-    const results = await zai.functions.invoke('web_search', {
-      query,
-      num: limit,
-    })
-
-    if (!Array.isArray(results)) return []
-
-    return results
-      .filter((r: { name?: string; snippet?: string; date?: string }) => r.name && r.snippet)
-      .filter((r: { date?: string }) => !r.date || isRecent(r.date))
-      .map((result: { url?: string; name?: string; snippet?: string; host_name?: string; date?: string; favicon?: string }, idx: number) => {
-        const title = result.name || ''
-        const snippet = result.snippet || ''
-        const detectedCat = category === 'all' ? detectCategory(title, snippet) : category
-        const id = generateId(`${result.url || title}`)
-        const hostName = result.host_name || ''
-        const favicon = result.favicon || ''
-
-        // Use LLM to generate Arabic/English versions is too slow,
-        // so we use the search result directly and provide both languages
-        const isArabicQuery = /[\u0600-\u06FF]/.test(query)
-
-        return {
-          id,
-          titleAr: isArabicQuery ? title : title,
-          titleEn: isArabicQuery ? title : title,
-          summaryAr: isArabicQuery ? snippet : snippet,
-          summaryEn: isArabicQuery ? snippet : snippet,
-          contentAr: snippet,
-          contentEn: snippet,
-          title,
-          summary: snippet,
-          content: snippet,
-          imageUrl: null,
-          sourceId: `src-${hostName.replace(/\./g, '-')}`,
-          category: detectedCat,
-          tags: JSON.stringify(extractTags(title, snippet)),
-          views: Math.floor(Math.random() * 20000) + 500,
-          isBreaking: idx < 2,
-          isTrending: idx < 5,
-          publishedAt: result.date || new Date().toISOString(),
-          createdAt: result.date || new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          source: {
-            id: `src-${hostName.replace(/\./g, '-')}`,
-            name: hostName || 'News Source',
-            url: result.url || '',
-            type: 'web',
-            reliabilityScore: 0.8,
-            logo: favicon ? (favicon.startsWith('http') ? favicon : `https://${favicon}`) : '📰',
-            isActive: true,
-          },
-        } satisfies LiveArticle
-      })
-  } catch (error) {
-    console.error('Search failed:', error)
-    return []
   }
 }
 
@@ -198,14 +119,100 @@ function extractTags(title: string, snippet: string): string[] {
     'Anthropic': 'anthropic', 'Claude': 'claude', 'Meta': 'meta', 'Llama': 'llama',
     'Microsoft': 'microsoft', 'Apple': 'apple', 'NVIDIA': 'nvidia', 'Tesla': 'tesla',
     'Robot': 'robotics', 'AI': 'ai', 'LLM': 'llm', 'ML': 'machine-learning',
-    'Deep Learning': 'deep-learning', 'Neural': 'neural-network',
   }
   for (const [keyword, tag] of Object.entries(tagKeywords)) {
-    if (text.includes(keyword.toLowerCase())) {
+    if (text.includes(keyword.toLowerCase()) && tags.length < 5) {
       tags.push(tag)
     }
   }
-  return tags.slice(0, 5)
+  return tags
+}
+
+function mapSearchResult(result: {
+  url?: string; name?: string; snippet?: string;
+  host_name?: string; date?: string; favicon?: string;
+}, index: number): LiveArticle | null {
+  const title = result.name || ''
+  const snippet = result.snippet || ''
+  if (!title || !snippet) return null
+
+  const id = generateId(`${result.url || title}`)
+  const hostName = result.host_name || ''
+  const favicon = result.favicon || ''
+  const category = detectCategory(title, snippet)
+
+  return {
+    id,
+    titleAr: title,
+    titleEn: title,
+    summaryAr: snippet,
+    summaryEn: snippet,
+    contentAr: snippet,
+    contentEn: snippet,
+    title,
+    summary: snippet,
+    content: snippet,
+    imageUrl: null,
+    sourceId: `src-${hostName.replace(/\./g, '-')}`,
+    category,
+    tags: JSON.stringify(extractTags(title, snippet)),
+    views: Math.floor(Math.random() * 20000) + 500,
+    isBreaking: index < 2,
+    isTrending: index < 5,
+    publishedAt: result.date || new Date().toISOString(),
+    createdAt: result.date || new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    source: {
+      id: `src-${hostName.replace(/\./g, '-')}`,
+      name: hostName || 'News Source',
+      url: result.url || '',
+      type: 'web',
+      reliabilityScore: 0.8,
+      logo: favicon ? (favicon.startsWith('http') ? favicon : `https://${favicon}`) : '📰',
+      isActive: true,
+    },
+  }
+}
+
+// ─── In-Memory Cache ─────────────────────────────────────────────────────────
+
+const cache = new Map<string, CachedData>()
+const CACHE_TTL = 15 * 60 * 1000 // 15 minutes
+const ALL_CACHE_KEY = '__all__'
+const TRENDING_CACHE_KEY = '__trending__'
+
+function isCacheValid(key: string): boolean {
+  const cached = cache.get(key)
+  if (!cached) return false
+  return Date.now() - cached.timestamp < CACHE_TTL
+}
+
+// ─── Core Search Function ────────────────────────────────────────────────────
+
+async function searchNews(query: string, limit: number = 10): Promise<LiveArticle[]> {
+  try {
+    const zai = await ZAI.create()
+    const results = await zai.functions.invoke('web_search', {
+      query,
+      num: limit,
+    })
+
+    if (!Array.isArray(results)) return []
+
+    const seenIds = new Set<string>()
+    return results
+      .map((r: Record<string, unknown>, idx: number) => mapSearchResult(r as Parameters<typeof mapSearchResult>[0], idx))
+      .filter((article): article is LiveArticle => {
+        if (!article) return false
+        if (seenIds.has(article.id)) return false
+        if (article.publishedAt && !isRecent(article.publishedAt)) return false
+        seenIds.add(article.id)
+        return true
+      })
+  } catch (error) {
+    console.error('Search failed for query:', query, error)
+    return []
+  }
 }
 
 // ─── Public API ──────────────────────────────────────────────────────────────
@@ -217,18 +224,16 @@ export async function fetchLiveNews(
   limit: number = 12
 ): Promise<{ articles: LiveArticle[]; total: number; page: number; totalPages: number }> {
   const cacheKey = category === 'all' ? ALL_CACHE_KEY : category
+  const isAr = lang === 'ar'
 
-  // Check cache
+  // Check cache first
   if (isCacheValid(cacheKey)) {
     const cached = cache.get(cacheKey)!
-    const isAr = lang === 'ar'
-
     let filtered = cached.articles
     if (category !== 'all') {
       filtered = filtered.filter((a) => a.category === category)
     }
 
-    // Map language fields
     const mapped = filtered.map((article) => ({
       ...article,
       title: isAr ? article.titleAr : article.titleEn,
@@ -240,70 +245,51 @@ export async function fetchLiveNews(
     const start = (page - 1) * limit
     const paginated = mapped.slice(start, start + limit)
 
-    return {
-      articles: paginated,
-      total,
-      page,
-      totalPages: Math.ceil(total / limit),
-    }
+    return { articles: paginated, total, page, totalPages: Math.ceil(total / limit) || 1 }
   }
 
-  // Fetch fresh data using multiple search queries
-  const isAr = lang === 'ar'
+  // Fetch fresh data
   const articles: LiveArticle[] = []
   const seenIds = new Set<string>()
 
-  if (category === 'all') {
-    // Fetch from multiple categories for the main feed
-    const categoriesToFetch = Object.keys(categorySearchQueries).slice(0, 4)
-    const searchPromises = categoriesToFetch.map(async (cat) => {
-      const queries = categorySearchQueries[cat]
-      const enResults = await searchAndConvert(queries.en, 'en', cat, 5)
-      const arResults = await searchAndConvert(queries.ar, 'ar', cat, 3)
-      return [...enResults, ...arResults]
-    })
+  const addArticle = (article: LiveArticle) => {
+    if (!seenIds.has(article.id)) {
+      seenIds.add(article.id)
+      articles.push(article)
+    }
+  }
 
-    const results = await Promise.allSettled(searchPromises)
+  if (category === 'all') {
+    // Fetch from multiple sources in parallel
+    const queries = [
+      searchNews(isAr ? 'أحدث أخبار الذكاء الاصطناعي اليوم' : 'latest AI artificial intelligence news today', 10),
+      searchNews(isAr ? 'أخبار نماذج اللغة GPT Claude' : 'LLM GPT Claude Gemini large language model news', 8),
+      searchNews(isAr ? 'أخبار الروبوتات والتعلم الآلي' : 'robotics machine learning automation news', 6),
+      searchNews(isAr ? 'أدوات وتطبيقات ذكاء اصطناعي جديدة' : 'new AI tools apps generative AI news', 6),
+    ]
+
+    const results = await Promise.allSettled(queries)
     for (const result of results) {
       if (result.status === 'fulfilled') {
-        for (const article of result.value) {
-          if (!seenIds.has(article.id)) {
-            seenIds.add(article.id)
-            articles.push(article)
-          }
-        }
-      }
-    }
-
-    // Also do a general search
-    const generalResults = await searchAndConvert(
-      isAr ? 'أحدث أخبار الذكاء الاصطناعي اليوم' : 'latest AI artificial intelligence news today',
-      lang as 'en' | 'ar',
-      'all',
-      10
-    )
-    for (const article of generalResults) {
-      if (!seenIds.has(article.id)) {
-        seenIds.add(article.id)
-        articles.push(article)
+        result.value.forEach(addArticle)
       }
     }
   } else {
-    // Fetch for specific category
     const queries = categorySearchQueries[category]
     if (queries) {
-      const enResults = await searchAndConvert(queries.en, 'en', category, 8)
-      const arResults = await searchAndConvert(queries.ar, 'ar', category, 4)
-      for (const article of [...enResults, ...arResults]) {
-        if (!seenIds.has(article.id)) {
-          seenIds.add(article.id)
-          articles.push(article)
+      const results = await Promise.allSettled([
+        searchNews(queries.en, 8),
+        searchNews(queries.ar, 5),
+      ])
+      for (const result of results) {
+        if (result.status === 'fulfilled') {
+          result.value.forEach(addArticle)
         }
       }
     }
   }
 
-  // Sort by publishedAt (most recent first)
+  // Sort by date (most recent first)
   articles.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
 
   // Store in cache
@@ -321,19 +307,12 @@ export async function fetchLiveNews(
   const start = (page - 1) * limit
   const paginated = mapped.slice(start, start + limit)
 
-  return {
-    articles: paginated,
-    total,
-    page,
-    totalPages: Math.ceil(total / limit),
-  }
+  return { articles: paginated, total, page, totalPages: Math.ceil(total / limit) || 1 }
 }
 
 export async function fetchTrendingNews(lang: string = 'ar'): Promise<{ articles: LiveArticle[] }> {
-  const cacheKey = '__trending__'
-
-  if (isCacheValid(cacheKey)) {
-    const cached = cache.get(cacheKey)!
+  if (isCacheValid(TRENDING_CACHE_KEY)) {
+    const cached = cache.get(TRENDING_CACHE_KEY)!
     const isAr = lang === 'ar'
     return {
       articles: cached.articles.map((a) => ({
@@ -345,82 +324,42 @@ export async function fetchTrendingNews(lang: string = 'ar'): Promise<{ articles
     }
   }
 
-  try {
-    const zai = await ZAI.create()
-    const [enResults, arResults] = await Promise.all([
-      zai.functions.invoke('web_search', {
-        query: 'trending AI news this week 2026',
-        num: 8,
-      }),
-      zai.functions.invoke('web_search', {
-        query: 'أخبار الذكاء الاصطناعي الأكثر رواجاً',
-        num: 5,
-      }),
-    ])
-
-    const allResults = [...(Array.isArray(enResults) ? enResults : []), ...(Array.isArray(arResults) ? arResults : [])]
-    const seenIds = new Set<string>()
-
-    const articles: LiveArticle[] = allResults
-      .filter((r: { name?: string; snippet?: string }) => r.name && r.snippet)
-      .map((result: { url?: string; name?: string; snippet?: string; host_name?: string; date?: string; favicon?: string }, idx: number) => {
-        const title = result.name || ''
-        const snippet = result.snippet || ''
-        const id = generateId(`${result.url || title}`)
-        if (seenIds.has(id)) return null
-        seenIds.add(id)
-
-        return {
-          id,
-          titleAr: title,
-          titleEn: title,
-          summaryAr: snippet,
-          summaryEn: snippet,
-          contentAr: snippet,
-          contentEn: snippet,
-          title,
-          summary: snippet,
-          content: snippet,
-          imageUrl: null,
-          sourceId: `src-${(result.host_name || '').replace(/\./g, '-')}`,
-          category: detectCategory(title, snippet),
-          tags: JSON.stringify(extractTags(title, snippet)),
-          views: Math.floor(Math.random() * 30000) + 1000,
-          isBreaking: idx < 2,
-          isTrending: true,
-          publishedAt: result.date || new Date().toISOString(),
-          createdAt: result.date || new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          source: {
-            id: `src-${(result.host_name || '').replace(/\./g, '-')}`,
-            name: result.host_name || 'News Source',
-            url: result.url || '',
-            type: 'web',
-            reliabilityScore: 0.85,
-            logo: result.favicon ? (result.favicon.startsWith('http') ? result.favicon : `https://${result.favicon}`) : '🔥',
-            isActive: true,
-          },
-        } satisfies LiveArticle
-      })
-      .filter(Boolean) as LiveArticle[]
-
-    // Sort by views (random but consistent)
-    articles.sort((a, b) => b.views - a.views)
-
-    cache.set(cacheKey, { articles, timestamp: Date.now(), category: 'trending' })
-
-    const isAr = lang === 'ar'
-    return {
-      articles: articles.map((a) => ({
-        ...a,
-        title: isAr ? a.titleAr : a.titleEn,
-        summary: isAr ? a.summaryAr : a.summaryEn,
-        content: isAr ? a.contentAr : a.contentEn,
-      })),
+  const seenIds = new Set<string>()
+  const articles: LiveArticle[] = []
+  const addArticle = (article: LiveArticle) => {
+    if (!seenIds.has(article.id)) {
+      seenIds.add(article.id)
+      articles.push(article)
     }
-  } catch (error) {
-    console.error('Failed to fetch trending:', error)
-    return { articles: [] }
+  }
+
+  const results = await Promise.allSettled([
+    searchNews('trending AI news this week 2026', 8),
+    searchNews('أخبار الذكاء الاصطناعي الأكثر رواجاً هذا الأسبوع', 5),
+    searchNews('AI breakthroughs latest developments', 5),
+  ])
+
+  for (const result of results) {
+    if (result.status === 'fulfilled') {
+      result.value.forEach(addArticle)
+    }
+  }
+
+  // Mark all trending articles as trending
+  articles.forEach((a) => { a.isTrending = true })
+
+  articles.sort((a, b) => b.views - a.views)
+
+  cache.set(TRENDING_CACHE_KEY, { articles, timestamp: Date.now(), category: 'trending' })
+
+  const isAr = lang === 'ar'
+  return {
+    articles: articles.map((a) => ({
+      ...a,
+      title: isAr ? a.titleAr : a.titleEn,
+      summary: isAr ? a.summaryAr : a.summaryEn,
+      content: isAr ? a.contentAr : a.contentEn,
+    })),
   }
 }
 
@@ -430,87 +369,54 @@ export async function searchLiveNews(
   page: number = 1,
   limit: number = 12
 ): Promise<{ articles: LiveArticle[]; total: number; page: number; totalPages: number; query: string }> {
-  try {
-    const zai = await ZAI.create()
-    const [enResults, arResults] = await Promise.all([
-      zai.functions.invoke('web_search', {
-        query: `${query} AI artificial intelligence`,
-        num: 10,
-      }),
-      zai.functions.invoke('web_search', {
-        query: `${query} الذكاء الاصطناعي`,
-        num: 5,
-      }),
-    ])
-
-    const allResults = [...(Array.isArray(enResults) ? enResults : []), ...(Array.isArray(arResults) ? arResults : [])]
-    const seenIds = new Set<string>()
-    const isAr = lang === 'ar'
-
-    const articles: LiveArticle[] = allResults
-      .filter((r: { name?: string; snippet?: string }) => r.name && r.snippet)
-      .map((result: { url?: string; name?: string; snippet?: string; host_name?: string; date?: string; favicon?: string }, idx: number) => {
-        const title = result.name || ''
-        const snippet = result.snippet || ''
-        const id = generateId(`${result.url || title}`)
-        if (seenIds.has(id)) return null
-        seenIds.add(id)
-
-        return {
-          id,
-          titleAr: title,
-          titleEn: title,
-          summaryAr: snippet,
-          summaryEn: snippet,
-          contentAr: snippet,
-          contentEn: snippet,
-          title,
-          summary: snippet,
-          content: snippet,
-          imageUrl: null,
-          sourceId: `src-${(result.host_name || '').replace(/\./g, '-')}`,
-          category: detectCategory(title, snippet),
-          tags: JSON.stringify(extractTags(title, snippet)),
-          views: Math.floor(Math.random() * 15000) + 200,
-          isBreaking: false,
-          isTrending: idx < 3,
-          publishedAt: result.date || new Date().toISOString(),
-          createdAt: result.date || new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          source: {
-            id: `src-${(result.host_name || '').replace(/\./g, '-')}`,
-            name: result.host_name || 'News Source',
-            url: result.url || '',
-            type: 'web',
-            reliabilityScore: 0.8,
-            logo: result.favicon ? (result.favicon.startsWith('http') ? result.favicon : `https://${result.favicon}`) : '🔍',
-            isActive: true,
-          },
-        } satisfies LiveArticle
-      })
-      .filter(Boolean) as LiveArticle[]
-
-    const total = articles.length
-    const start = (page - 1) * limit
-    const paginated = articles.slice(start, start + limit)
-
-    return {
-      articles: paginated,
-      total,
-      page,
-      totalPages: Math.ceil(total / limit),
-      query,
+  const seenIds = new Set<string>()
+  const articles: LiveArticle[] = []
+  const addArticle = (article: LiveArticle) => {
+    if (!seenIds.has(article.id)) {
+      seenIds.add(article.id)
+      articles.push(article)
     }
-  } catch (error) {
-    console.error('Search failed:', error)
-    return { articles: [], total: 0, page, totalPages: 0, query }
   }
+
+  const results = await Promise.allSettled([
+    searchNews(`${query} AI artificial intelligence`, 10),
+    searchNews(`${query} الذكاء الاصطناعي`, 5),
+  ])
+
+  for (const result of results) {
+    if (result.status === 'fulfilled') {
+      result.value.forEach(addArticle)
+    }
+  }
+
+  const total = articles.length
+  const start = (page - 1) * limit
+  const paginated = articles.slice(start, start + limit)
+
+  return { articles: paginated, total, page, totalPages: Math.ceil(total / limit) || 1, query }
 }
 
 export async function refreshAllCaches(): Promise<void> {
-  // Clear all caches to force refresh on next request
   cache.clear()
-  // Pre-fetch main categories
-  await fetchLiveNews('all', 'ar', 1, 12)
-  await fetchTrendingNews('ar')
+  await Promise.allSettled([
+    fetchLiveNews('all', 'ar', 1, 12),
+    fetchTrendingNews('ar'),
+  ])
+}
+
+// Get all cached articles (for stats)
+export function getCachedArticles(): LiveArticle[] {
+  const allArticles: LiveArticle[] = []
+  const seenIds = new Set<string>()
+
+  for (const [, data] of cache) {
+    for (const article of data.articles) {
+      if (!seenIds.has(article.id)) {
+        seenIds.add(article.id)
+        allArticles.push(article)
+      }
+    }
+  }
+
+  return allArticles
 }

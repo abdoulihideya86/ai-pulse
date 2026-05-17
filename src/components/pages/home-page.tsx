@@ -109,15 +109,7 @@ const categories: CategoryDef[] = [
   { slug: 'ai-policy', nameAr: 'سياسات وتنظيمات', nameEn: 'Policy & Regulation', icon: Shield, color: '#14b8a6' },
 ]
 
-// ─── Breaking News Headlines ─────────────────────────────────────────────────
-
-const breakingHeadlines = [
-  { ar: 'إطلاق GPT-5: ثورة جديدة في النماذج اللغوية الكبيرة', en: 'GPT-5 Launch: A New Revolution in Large Language Models' },
-  { ar: 'جوجل تطلق نموذج Gemini 2.0 الجديد بقدرات مذهلة', en: 'Google Launches New Gemini 2.0 Model with Amazing Capabilities' },
-  { ar: 'الاتحاد الأوروبي يصدر قانون الذكاء الاصطناعي الجديد', en: 'EU Issues New AI Act Regulation' },
-  { ar: 'نموذج رؤية حاسوبية جديد يحقق دقة غير مسبوقة', en: 'New Computer Vision Model Achieves Unprecedented Accuracy' },
-  { ar: 'روبوتات جديدة قادرة على التعلم بالملاحظة فقط', en: 'New Robots Capable of Learning by Observation Only' },
-]
+// Breaking news headlines will be fetched dynamically from the API
 
 // ─── Utility Functions ───────────────────────────────────────────────────────
 
@@ -197,10 +189,29 @@ function PullToRefreshIndicator({ language }: { language: 'ar' | 'en' }) {
   )
 }
 
-/** Breaking News Ticker */
+/** Breaking News Ticker — now shows real headlines from API */
 function BreakingNewsTicker({ language }: { language: 'ar' | 'en' }) {
   const isRTL = language === 'ar'
-  const headlines = breakingHeadlines.map((h) => (isRTL ? h.ar : h.en))
+  const [headlines, setHeadlines] = useState<string[]>([])
+
+  useEffect(() => {
+    async function fetchBreaking() {
+      try {
+        const res = await fetch('/api/news/trending?lang=' + language)
+        const data = await res.json()
+        const titles = (data.articles || [])
+          .filter((a: Article) => a.isBreaking)
+          .slice(0, 5)
+          .map((a: Article) => isRTL ? a.titleAr : a.titleEn)
+        setHeadlines(titles.length > 0 ? titles : (data.articles || []).slice(0, 5).map((a: Article) => isRTL ? a.titleAr : a.titleEn))
+      } catch {
+        // silently fail
+      }
+    }
+    fetchBreaking()
+  }, [language, isRTL])
+
+  if (headlines.length === 0) return null
 
   return (
     <div className="w-full overflow-hidden bg-destructive/10 border-b border-destructive/20">
@@ -219,7 +230,6 @@ function BreakingNewsTicker({ language }: { language: 'ar' | 'en' }) {
         {/* Scrolling track */}
         <div className="overflow-hidden flex-1 relative">
           <div className="ai-ticker-track" style={{ '--ticker-duration': '40s' } as React.CSSProperties}>
-            {/* Duplicate content for seamless loop */}
             {[...headlines, ...headlines].map((headline, i) => (
               <span key={i} className="inline-flex items-center gap-6 mx-6 text-sm font-medium whitespace-nowrap">
                 <span className="text-foreground/90">{headline}</span>
@@ -247,10 +257,36 @@ function HeroSection({ language }: { language: 'ar' | 'en' }) {
     [searchValue, setSearch]
   )
 
-  const stats = [
-    { value: '500+', labelAr: 'مصدر أخبار', labelEn: 'News Sources' },
-    { value: '1M+', labelAr: 'مقال شهرياً', labelEn: 'Monthly Articles' },
-    { value: '50+', labelAr: 'أداة AI', labelEn: 'AI Tools' },
+  const [realStats, setRealStats] = useState<{ value: string; labelAr: string; labelEn: string }[]>([])
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const res = await fetch('/api/stats')
+        const data = await res.json()
+        const stats = [
+          { value: String(data.totalSources || 0), labelAr: 'مصدر أخبار', labelEn: 'News Sources' },
+          { value: String(data.totalArticles || 0), labelAr: 'مقال متاح', labelEn: 'Articles Available' },
+          { value: String(data.breakingCount || 0), labelAr: 'خبر عاجل', labelEn: 'Breaking News' },
+          { value: '24/7', labelAr: 'تحديث مستمر', labelEn: 'Continuous Updates' },
+        ]
+        setRealStats(stats)
+      } catch {
+        setRealStats([
+          { value: '—', labelAr: 'مصدر أخبار', labelEn: 'News Sources' },
+          { value: '—', labelAr: 'مقال متاح', labelEn: 'Articles Available' },
+          { value: '—', labelAr: 'خبر عاجل', labelEn: 'Breaking News' },
+          { value: '24/7', labelAr: 'تحديث مستمر', labelEn: 'Continuous Updates' },
+        ])
+      }
+    }
+    fetchStats()
+  }, [])
+
+  const stats = realStats.length > 0 ? realStats : [
+    { value: '...', labelAr: 'مصدر أخبار', labelEn: 'News Sources' },
+    { value: '...', labelAr: 'مقال متاح', labelEn: 'Articles Available' },
+    { value: '...', labelAr: 'خبر عاجل', labelEn: 'Breaking News' },
     { value: '24/7', labelAr: 'تحديث مستمر', labelEn: 'Continuous Updates' },
   ]
 
@@ -409,21 +445,23 @@ function CategoryCard({ category, language, onClick, count }: { category: Catego
   )
 }
 
-/** Categories Grid Section */
+/** Categories Grid Section — with real counts from API */
 function CategoriesGrid({ language, onCategoryClick }: { language: 'ar' | 'en'; onCategoryClick: (slug: string) => void }) {
   const isRTL = language === 'ar'
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({})
 
-  // Predefined counts for each category
-  const categoryCounts: Record<string, number> = {
-    'general-ai': 245,
-    'computer-vision': 189,
-    'robotics': 134,
-    'ai-ethics': 98,
-    'nlp': 312,
-    'machine-learning': 267,
-    'generative-ai': 156,
-    'ai-policy': 87,
-  }
+  useEffect(() => {
+    async function fetchCounts() {
+      try {
+        const res = await fetch('/api/stats')
+        const data = await res.json()
+        setCategoryCounts(data.categoryCounts || {})
+      } catch {
+        // Keep empty counts
+      }
+    }
+    fetchCounts()
+  }, [])
 
   return (
     <section className="container mx-auto px-4 py-12 md:py-16">
