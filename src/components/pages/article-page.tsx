@@ -128,6 +128,8 @@ const categoryLabels: Record<string, { ar: string; en: string }> = {
   'computer-vision': { ar: 'الرؤية الحاسوبية', en: 'Computer Vision' },
   robotics: { ar: 'الروبوتات', en: 'Robotics' },
   'ai-ethics': { ar: 'أخلاقيات الذكاء الاصطناعي', en: 'AI Ethics' },
+  'generative-ai': { ar: 'أدوات وتطبيقات', en: 'Tools & Apps' },
+  'ai-policy': { ar: 'سياسات وتنظيمات', en: 'Policy & Regulation' },
   llm: { ar: 'نماذج اللغة', en: 'LLMs' },
   investment: { ar: 'الاستثمار', en: 'Investment' },
   research: { ar: 'الأبحاث', en: 'Research' },
@@ -526,6 +528,7 @@ export function ArticlePage() {
   const content = isAr
     ? (article.contentAr || article.content || '')
     : (article.contentEn || article.content || '')
+  const isEnglishContent = isAr && article.titleAr === article.titleEn
   const catLabel = getCategoryLabel(article.category, isAr)
   const readingTime = estimateReadingTime(content)
   const summaryBullets = parseSummaryToBullets(aiSummary || '')
@@ -670,6 +673,11 @@ export function ArticlePage() {
             }}
           >
             {title}
+            {isAr && article.titleAr === article.titleEn && (
+              <Badge variant="outline" className="ms-3 text-[10px] px-2 py-0.5 align-middle border-muted-foreground/40 text-muted-foreground font-mono">
+                EN
+              </Badge>
+            )}
           </h1>
 
           {/* Meta row */}
@@ -980,8 +988,8 @@ export function ArticlePage() {
             prose-headings:font-bold prose-headings:ai-text-gradient
             prose-strong:text-foreground
             prose-a:text-ai-purple prose-a:no-underline hover:prose-a:underline`}
-          dir={isRTL ? 'rtl' : 'ltr'}
-          lang={isRTL ? 'ar' : 'en'}
+          dir={isEnglishContent ? 'ltr' : (isRTL ? 'rtl' : 'ltr')}
+          lang={isEnglishContent ? 'en' : (isRTL ? 'ar' : 'en')}
           style={{
             fontSize: readingMode ? `${fontSize}px` : undefined,
             lineHeight: readingMode ? 2 : undefined,

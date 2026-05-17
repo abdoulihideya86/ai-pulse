@@ -520,6 +520,42 @@ const CACHE_TTL = 15 * 60 * 1000 // 15 minutes
 const ALL_CACHE_KEY = '__all__'
 const TRENDING_CACHE_KEY = '__trending__'
 
+// ─── In-Memory View Counter ──────────────────────────────────────────────────
+
+const viewCounter = new Map<string, number>()
+
+/** Increment view count for an article and return the new total */
+export function incrementViews(articleId: string): number {
+  const current = viewCounter.get(articleId) ?? 0
+  const newCount = current + 1
+  viewCounter.set(articleId, newCount)
+  return newCount
+}
+
+/** Get the total view count (base + incremented) for an article */
+export function getViews(articleId: string): number {
+  return viewCounter.get(articleId) ?? 0
+}
+
+/** Generate a reasonable base view count for a new article */
+function generateBaseViews(articleId: string): number {
+  // Use the article ID hash to produce a stable "random" base between 50 and 500
+  let hash = 0
+  for (let i = 0; i < articleId.length; i++) {
+    hash = ((hash << 5) - hash) + articleId.charCodeAt(i)
+    hash |= 0
+  }
+  return 50 + (Math.abs(hash) % 451) // 50–500
+}
+
+/** Get base views for an article (lazily initialized) */
+export function getBaseViews(articleId: string): number {
+  if (!viewCounter.has(articleId)) {
+    viewCounter.set(articleId, generateBaseViews(articleId))
+  }
+  return viewCounter.get(articleId)!
+}
+
 function isCacheValid(key: string): boolean {
   const cached = cache.get(key)
   if (!cached) return false

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { fetchLiveNews } from '@/lib/news-service'
+import { fetchLiveNews, getBaseViews } from '@/lib/news-service'
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,7 +10,13 @@ export async function GET(request: NextRequest) {
 
     const result = await fetchLiveNews(category, lang, page)
 
-    return NextResponse.json(result)
+    // Overlay view counts from the in-memory counter
+    const articles = result.articles.map((article) => ({
+      ...article,
+      views: getBaseViews(article.id),
+    }))
+
+    return NextResponse.json({ ...result, articles })
   } catch (error) {
     console.error('Error fetching news:', error)
     return NextResponse.json(

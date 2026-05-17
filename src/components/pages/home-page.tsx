@@ -611,6 +611,11 @@ function TrendingArticleCard({ article, language, index }: { article: Article; l
         <CardContent className="p-4 space-y-3">
           <h3 className="font-bold leading-relaxed line-clamp-2 group-hover:text-primary transition-colors text-sm">
             {isRTL ? article.titleAr : article.titleEn}
+            {isRTL && article.titleAr === article.titleEn && (
+              <Badge variant="outline" className="ms-2 text-[9px] px-1.5 py-0 align-middle border-muted-foreground/40 text-muted-foreground font-mono">
+                EN
+              </Badge>
+            )}
           </h3>
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
@@ -954,10 +959,15 @@ function LatestArticleCard({ article, language }: { article: Article; language: 
           {/* Title */}
           <h3 className="font-bold leading-relaxed line-clamp-2 group-hover:text-primary transition-colors">
             {isRTL ? article.titleAr : article.titleEn}
+            {isRTL && article.titleAr === article.titleEn && (
+              <Badge variant="outline" className="ms-2 text-[9px] px-1.5 py-0 align-middle border-muted-foreground/40 text-muted-foreground font-mono">
+                EN
+              </Badge>
+            )}
           </h3>
 
           {/* Summary */}
-          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
+          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2" dir={isRTL && article.summaryAr === article.summaryEn ? 'ltr' : undefined}>
             {isRTL ? article.summaryAr : article.summaryEn}
           </p>
 

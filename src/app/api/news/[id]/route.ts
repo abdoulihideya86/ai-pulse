@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { fetchLiveNews } from '@/lib/news-service'
+import { fetchLiveNews, incrementViews, getBaseViews } from '@/lib/news-service'
 
 export async function GET(
   request: NextRequest,
@@ -10,6 +10,10 @@ export async function GET(
     const { searchParams } = new URL(request.url)
     const lang = searchParams.get('lang') || 'ar'
     const isAr = lang === 'ar'
+
+    // Increment views for this article (persists in-memory for server lifetime)
+    incrementViews(id)
+    const totalViews = getBaseViews(id)
 
     // Search for article by ID in cached/live data
     // Since we don't have a database, we fetch from cache and find by ID
@@ -32,7 +36,7 @@ export async function GET(
       return NextResponse.json({
         article: {
           ...trendingArticle,
-          views: trendingArticle.views + 1,
+          views: totalViews,
           title: isAr ? trendingArticle.titleAr : trendingArticle.titleEn,
           summary: isAr ? trendingArticle.summaryAr : trendingArticle.summaryEn,
           content: isAr ? trendingArticle.contentAr : trendingArticle.contentEn,
@@ -43,7 +47,7 @@ export async function GET(
     return NextResponse.json({
       article: {
         ...article,
-        views: article.views + 1,
+        views: totalViews,
         title: isAr ? article.titleAr : article.titleEn,
         summary: isAr ? article.summaryAr : article.summaryEn,
         content: isAr ? article.contentAr : article.contentEn,
