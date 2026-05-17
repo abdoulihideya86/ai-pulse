@@ -1,6 +1,5 @@
-import { isDatabaseAvailable, db } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
-import { getArticleById, mockArticles } from '@/lib/mock-data'
+import { fetchLiveNews } from '@/lib/news-service'
 
 export async function GET(
   request: NextRequest,
@@ -8,68 +7,48 @@ export async function GET(
 ) {
   try {
     const { id } = await params
+    const { searchParams } = new URL(request.url)
+    const lang = searchParams.get('lang') || 'ar'
+    const isAr = lang === 'ar'
 
-    if (isDatabaseAvailable()) {
-      const article = await db!.article.findUnique({
-        where: { id },
-        include: {
-          source: true,
-        },
-      })
+    // Search for article by ID in cached/live data
+    // Since we don't have a database, we fetch from cache and find by ID
+    const result = await fetchLiveNews('all', lang, 1, 50)
+    const article = result.articles.find((a) => a.id === id)
 
-      if (!article) {
+    if (!article) {
+      // Try trending
+      const { fetchTrendingNews } = await import('@/lib/news-service')
+      const trending = await fetchTrendingNews(lang)
+      const trendingArticle = trending.articles.find((a) => a.id === id)
+
+      if (!trendingArticle) {
         return NextResponse.json(
           { error: 'Article not found' },
           { status: 404 }
         )
       }
 
-      // Increment views
-      await db!.article.update({
-        where: { id },
-        data: { views: { increment: 1 } },
+      return NextResponse.json({
+        article: {
+          ...trendingArticle,
+          views: trendingArticle.views + 1,
+          title: isAr ? trendingArticle.titleAr : trendingArticle.titleEn,
+          summary: isAr ? trendingArticle.summaryAr : trendingArticle.summaryEn,
+          content: isAr ? trendingArticle.contentAr : trendingArticle.contentEn,
+        },
       })
+    }
 
-      // Determine language preference from query params
-      const { searchParams } = new URL(request.url)
-      const lang = searchParams.get('lang') || 'ar'
-      const isAr = lang === 'ar'
-
-      const mappedArticle = {
+    return NextResponse.json({
+      article: {
         ...article,
         views: article.views + 1,
         title: isAr ? article.titleAr : article.titleEn,
         summary: isAr ? article.summaryAr : article.summaryEn,
         content: isAr ? article.contentAr : article.contentEn,
-      }
-
-      return NextResponse.json({ article: mappedArticle })
-    }
-
-    // Fallback to mock data
-    const mockArticle = getArticleById(id)
-
-    if (!mockArticle) {
-      return NextResponse.json(
-        { error: 'Article not found' },
-        { status: 404 }
-      )
-    }
-
-    const { searchParams } = new URL(request.url)
-    const lang = searchParams.get('lang') || 'ar'
-    const isAr = lang === 'ar'
-
-    const mappedArticle = {
-      ...mockArticle,
-      tags: JSON.stringify(mockArticle.tags),
-      views: mockArticle.views + 1,
-      title: isAr ? mockArticle.titleAr : mockArticle.titleEn,
-      summary: isAr ? mockArticle.summaryAr : mockArticle.summaryEn,
-      content: isAr ? mockArticle.contentAr : mockArticle.contentEn,
-    }
-
-    return NextResponse.json({ article: mappedArticle })
+      },
+    })
   } catch (error) {
     console.error('Error fetching article:', error)
     return NextResponse.json(
