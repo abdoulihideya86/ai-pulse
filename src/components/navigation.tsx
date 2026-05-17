@@ -129,7 +129,7 @@ export function Navigation() {
               variant="ghost"
               onClick={() => navigate('home')}
               className="gap-2 p-1.5 hover:bg-transparent"
-              aria-label="AI Pulse - الصفحة الرئيسية"
+              aria-label={language === 'ar' ? 'نبض الذكاء الاصطناعي - الصفحة الرئيسية' : 'AI Pulse - Home'}
             >
               <div className="relative flex items-center justify-center size-9 rounded-lg ai-gradient">
                 <Brain className="size-5 text-white" />
@@ -337,7 +337,7 @@ export function Navigation() {
                       <div className="relative">
                         <Search className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                         <Input
-                          placeholder={language === 'ar' ? 'ابحث عن أخبار AI...' : 'Search AI news...'}
+                          placeholder={language === 'ar' ? 'ابحث عن أخبار الذكاء الاصطناعي...' : 'Search AI news...'}
                           value={searchValue}
                           onChange={(e) => setSearchValue(e.target.value)}
                           className="ps-9"
@@ -367,7 +367,7 @@ export function Navigation() {
                   <Search className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                   <Input
                     autoFocus
-                    placeholder={language === 'ar' ? 'ابحث عن أخبار AI...' : 'Search AI news...'}
+                    placeholder={language === 'ar' ? 'ابحث عن أخبار الذكاء الاصطناعي...' : 'Search AI news...'}
                     value={searchValue}
                     onChange={(e) => setSearchValue(e.target.value)}
                     className="ps-9"

@@ -72,7 +72,7 @@ export function Footer() {
     if (!email) return
     toast.success(
       isRTL
-        ? 'شكراً لاشتراكك! ستصلك أحدث أخبار AI.'
+        ? 'شكراً لاشتراكك! ستصلك أحدث أخبار الذكاء الاصطناعي.'
         : 'Thanks for subscribing! You\'ll receive the latest AI news.'
     )
     setEmail('')
@@ -102,7 +102,7 @@ export function Footer() {
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
                 {isRTL
-                  ? 'منصتك المتكاملة لمتابعة أحدث أخبار وتحليلات الذكاء الاصطناعي. نبقيك على اطلاع بكل جديد في عالم AI.'
+                  ? 'منصتك المتكاملة لمتابعة أحدث أخبار وتحليلات الذكاء الاصطناعي. نبقيك على اطلاع بكل جديد في عالم الذكاء الاصطناعي.'
                   : 'Your comprehensive platform for the latest AI news and analysis. Stay updated with everything new in the AI world.'}
               </p>
 
@@ -194,7 +194,7 @@ export function Footer() {
             <p className="text-xs text-muted-foreground inline-flex items-center gap-1">
               {isRTL ? 'صُنع بـ' : 'Made with'}{' '}
               <Heart className="size-3 text-ai-pink fill-ai-pink" />{' '}
-              {isRTL ? 'لعشاق AI' : 'for AI enthusiasts'}
+              {isRTL ? 'لعشاق الذكاء الاصطناعي' : 'for AI enthusiasts'}
             </p>
           </div>
         </div>

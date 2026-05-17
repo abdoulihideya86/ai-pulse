@@ -211,10 +211,8 @@ function parseTags(tagsStr: string): string[] {
 function getCategoryLabel(slug: string, isAr: boolean): string {
   const cat = categoryLabels[slug]
   if (cat) return isAr ? cat.ar : cat.en
+  // Fallback: return the slug as-is (no title-casing which creates English text in Arabic mode)
   return slug
-    .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
 }
 
 // ---------------------------------------------------------------------------
@@ -675,7 +673,7 @@ export function ArticlePage() {
             {title}
             {isAr && article.titleAr === article.titleEn && (
               <Badge variant="outline" className="ms-3 text-[10px] px-2 py-0.5 align-middle border-muted-foreground/40 text-muted-foreground">
-                English
+                غير مترجم
               </Badge>
             )}
           </h1>

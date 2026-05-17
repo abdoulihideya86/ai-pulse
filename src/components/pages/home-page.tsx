@@ -347,12 +347,6 @@ function HeroSection({ language }: { language: 'ar' | 'en' }) {
             <span className="ai-text-gradient">
               {isRTL ? 'نبض الذكاء الاصطناعي' : 'AI Pulse'}
             </span>
-            {isRTL && (
-              <>
-                <br />
-                <span className="text-foreground">AI Pulse</span>
-              </>
-            )}
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             {isRTL
@@ -618,7 +612,7 @@ function TrendingArticleCard({ article, language, index }: { article: Article; l
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             {isRTL && article.titleAr === article.titleEn && (
               <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-muted-foreground/40 text-muted-foreground">
-                English
+                غير مترجم
               </Badge>
             )}
             <span className="flex items-center gap-1">
@@ -840,7 +834,7 @@ function NewsletterSection({ language }: { language: 'ar' | 'en' }) {
                       className="text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight"
                     >
                       {isRTL
-                        ? 'ابقَ على اطلاع بأحدث أخبار AI'
+                        ? 'ابقَ على اطلاع بأحدث أخبار الذكاء الاصطناعي'
                         : 'Stay Updated with the Latest AI News'}
                     </motion.h3>
                     <motion.p

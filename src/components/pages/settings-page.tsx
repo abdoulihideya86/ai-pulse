@@ -253,12 +253,12 @@ export function SettingsPage() {
         <div className="flex items-center gap-4">
           <Avatar className="size-16">
             <AvatarFallback className="bg-gradient-to-br from-ai-purple to-ai-cyan text-white text-xl font-bold">
-              م
+              AP
             </AvatarFallback>
           </Avatar>
           <div className="space-y-1">
             <p className="font-bold text-lg">
-              {isRTL ? 'مستخدم نبض AI' : 'AI Pulse User'}
+              {isRTL ? 'مستخدم نبض الذكاء الاصطناعي' : 'AI Pulse User'}
             </p>
             <p className="text-sm text-muted-foreground">user@aipulse.com</p>
             <Badge variant="secondary" className="text-xs">

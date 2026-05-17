@@ -167,16 +167,21 @@ export function AnalyticsPage() {
   const categoryDistribution = analytics?.categoryDistribution || []
 
   const pieChartData = categoryDistribution.map((cat, i) => ({
-    name: categoryNames[cat.category]?.en || cat.category,
-    nameAr: categoryNames[cat.category]?.ar || cat.category,
+    name: isRTL ? (categoryNames[cat.category]?.ar || cat.category) : (categoryNames[cat.category]?.en || cat.category),
     value: cat.count,
     color: CHART_COLORS[i % CHART_COLORS.length],
   }))
 
-  const articlesPerDayData = (analytics?.articlesPerDay || []).map(d => ({
-    ...d,
-    day: d.date.split('T')[0]?.slice(5) || d.date, // MM-DD format
-  }))
+  const articlesPerDayData = (analytics?.articlesPerDay || []).map(d => {
+    const date = new Date(d.date)
+    const day = isRTL
+      ? date.toLocaleDateString('ar-SA', { month: 'short', day: 'numeric' })
+      : d.date.split('T')[0]?.slice(5) || d.date // MM-DD format
+    return {
+      ...d,
+      day,
+    }
+  })
 
   const topSourcesData = (analytics?.topSources || []).slice(0, 8)
 
@@ -338,7 +343,7 @@ export function AnalyticsPage() {
                         outerRadius={90}
                         paddingAngle={3}
                         dataKey="value"
-                        nameKey={isRTL ? 'nameAr' : 'name'}
+                        nameKey="name"
                         stroke="none"
                       >
                         {pieChartData.map((entry, index) => (
