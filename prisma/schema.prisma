@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  avatar        String?
+  language      String   @default("ar")
+  theme         String   @default("dark")
+  tier          String   @default("free")
+  preferences   String   @default("{}")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  bookmarks     UserBookmark[]
+  reads         UserRead[]
+  interests     UserInterest[]
+}
+
+model Article {
+  id            String   @id @default(cuid())
+  titleAr       String
+  titleEn       String
+  summaryAr     String?
+  summaryEn     String?
+  contentAr     String?
+  contentEn     String?
+  imageUrl      String?
+  sourceId      String?
+  category      String
+  tags          String   @default("[]")
+  views         Int      @default(0)
+  isBreaking    Boolean  @default(false)
+  isTrending    Boolean  @default(false)
+  publishedAt   DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  source        Source?  @relation(fields: [sourceId], references: [id])
+  bookmarks     UserBookmark[]
+  reads         UserRead[]
+}
+
+model Category {
+  id            String   @id @default(cuid())
+  nameAr        String
+  nameEn        String
+  icon          String
+  color         String
+  slug          String   @unique
+  sortOrder     Int      @default(0)
+}
+
+model Source {
+  id                String   @id @default(cuid())
+  name              String
+  url               String
+  type              String   @default("rss")
+  reliabilityScore  Float    @default(0.5)
+  logo              String?
+  isActive          Boolean  @default(true)
+
+  articles          Article[]
+}
+
+model UserBookmark {
+  id          String   @id @default(cuid())
+  userId      String
+  articleId   String
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  article     Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, articleId])
+}
+
+model UserRead {
+  id          String   @id @default(cuid())
+  userId      String
+  articleId   String
+  readAt      DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  article     Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, articleId])
+}
+
+model UserInterest {
+  id          String   @id @default(cuid())
+  userId      String
+  category    String
+  weight      Float    @default(1.0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, category])
+}
+
+model Tool {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  category    String
+  rating      Float    @default(0)
+  pricing     String   @default("free")
+  url         String?
+  imageUrl    String?
+  features    String   @default("[]")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

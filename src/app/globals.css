@@ -1,0 +1,892 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   AI PULSE — Brand Theme Tokens
+   ============================================================ */
+
+@theme inline {
+  /* Core shadcn/ui semantic mappings */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-cairo);
+  --font-mono: var(--font-inter);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* AI Pulse brand color palette */
+  --color-ai-purple: #8b5cf6;
+  --color-ai-blue: #3b82f6;
+  --color-ai-cyan: #06b6d4;
+  --color-ai-teal: #14b8a6;
+  --color-ai-indigo: #6366f1;
+  --color-ai-pink: #ec4899;
+  --color-ai-deep: #0a0a1a;
+  --color-ai-surface: #1a1a2e;
+  --color-ai-surface-light: #252540;
+
+  /* Gradient stops */
+  --color-gradient-start: #8b5cf6;
+  --color-gradient-mid: #3b82f6;
+  --color-gradient-end: #06b6d4;
+}
+
+/* ============================================================
+   LIGHT THEME (Alternative)
+   ============================================================ */
+
+:root {
+  --radius: 0.625rem;
+
+  /* Core surfaces */
+  --background: #f8fafc;
+  --foreground: #1e293b;
+  --card: #ffffff;
+  --card-foreground: #1e293b;
+  --popover: #ffffff;
+  --popover-foreground: #1e293b;
+
+  /* Primary — AI Pulse purple */
+  --primary: #8b5cf6;
+  --primary-foreground: #ffffff;
+
+  /* Secondary */
+  --secondary: #f1f0fb;
+  --secondary-foreground: #4c1d95;
+
+  /* Muted */
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+
+  /* Accent — AI Pulse cyan */
+  --accent: #ecfeff;
+  --accent-foreground: #0e7490;
+
+  /* Destructive */
+  --destructive: #ef4444;
+
+  /* Borders & inputs */
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #8b5cf6;
+
+  /* Chart colors — AI-themed */
+  --chart-1: #8b5cf6;
+  --chart-2: #3b82f6;
+  --chart-3: #06b6d4;
+  --chart-4: #14b8a6;
+  --chart-5: #ec4899;
+
+  /* Sidebar */
+  --sidebar: #f8fafc;
+  --sidebar-foreground: #1e293b;
+  --sidebar-primary: #8b5cf6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f0fb;
+  --sidebar-accent-foreground: #4c1d95;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #8b5cf6;
+
+  /* AI Pulse brand tokens (light) */
+  --ai-glow: rgba(139, 92, 246, 0.15);
+  --ai-glow-cyan: rgba(6, 182, 212, 0.12);
+  --ai-gradient: linear-gradient(135deg, #8b5cf6, #3b82f6, #06b6d4);
+  --ai-gradient-subtle: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(59, 130, 246, 0.08), rgba(6, 182, 212, 0.08));
+  --ai-card-border: rgba(139, 92, 246, 0.12);
+  --ai-card-shadow: 0 1px 3px rgba(139, 92, 246, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --ai-card-hover-shadow: 0 10px 25px rgba(139, 92, 246, 0.1), 0 4px 10px rgba(0, 0, 0, 0.06);
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(139, 92, 246, 0.12);
+  --glass-blur: 16px;
+  --ticker-bg: #8b5cf6;
+  --ticker-text: #ffffff;
+}
+
+/* ============================================================
+   DARK THEME (Primary)
+   ============================================================ */
+
+.dark {
+  /* Core surfaces — deep dark AI aesthetic */
+  --background: #0a0a1a;
+  --foreground: #e2e8f0;
+  --card: #1a1a2e;
+  --card-foreground: #e2e8f0;
+  --popover: #1a1a2e;
+  --popover-foreground: #e2e8f0;
+
+  /* Primary — vibrant AI purple */
+  --primary: #8b5cf6;
+  --primary-foreground: #ffffff;
+
+  /* Secondary */
+  --secondary: #1e1b4b;
+  --secondary-foreground: #c4b5fd;
+
+  /* Muted */
+  --muted: #1f2937;
+  --muted-foreground: #94a3b8;
+
+  /* Accent — glowing AI cyan */
+  --accent: #0c2d3e;
+  --accent-foreground: #22d3ee;
+
+  /* Destructive */
+  --destructive: #f87171;
+
+  /* Borders & inputs */
+  --border: rgba(139, 92, 246, 0.15);
+  --input: rgba(139, 92, 246, 0.18);
+  --ring: #8b5cf6;
+
+  /* Chart colors — vivid AI palette */
+  --chart-1: #8b5cf6;
+  --chart-2: #3b82f6;
+  --chart-3: #06b6d4;
+  --chart-4: #14b8a6;
+  --chart-5: #ec4899;
+
+  /* Sidebar */
+  --sidebar: #0e0e24;
+  --sidebar-foreground: #e2e8f0;
+  --sidebar-primary: #8b5cf6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1e1b4b;
+  --sidebar-accent-foreground: #c4b5fd;
+  --sidebar-border: rgba(139, 92, 246, 0.15);
+  --sidebar-ring: #8b5cf6;
+
+  /* AI Pulse brand tokens (dark) */
+  --ai-glow: rgba(139, 92, 246, 0.25);
+  --ai-glow-cyan: rgba(6, 182, 212, 0.2);
+  --ai-gradient: linear-gradient(135deg, #8b5cf6, #3b82f6, #06b6d4);
+  --ai-gradient-subtle: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(59, 130, 246, 0.12), rgba(6, 182, 212, 0.12));
+  --ai-card-border: rgba(139, 92, 246, 0.2);
+  --ai-card-shadow: 0 4px 20px rgba(139, 92, 246, 0.08), 0 2px 8px rgba(0, 0, 0, 0.3);
+  --ai-card-hover-shadow: 0 8px 32px rgba(139, 92, 246, 0.2), 0 4px 16px rgba(0, 0, 0, 0.4);
+  --glass-bg: rgba(26, 26, 46, 0.72);
+  --glass-border: rgba(139, 92, 246, 0.2);
+  --glass-blur: 16px;
+  --ticker-bg: linear-gradient(90deg, #8b5cf6, #3b82f6, #06b6d4);
+  --ticker-text: #ffffff;
+}
+
+/* ============================================================
+   BASE LAYER
+   ============================================================ */
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Smooth theme transitions */
+  html {
+    transition: color-scheme 0.3s ease;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body,
+  body *:not(script):not(style):not(.no-theme-transition) {
+    transition:
+      background-color 0.3s ease,
+      border-color 0.3s ease,
+      box-shadow 0.3s ease,
+      color 0.15s ease;
+  }
+
+  /* Prevent layout shift on theme transitions for interactive elements */
+  input,
+  textarea,
+  select,
+  button {
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      color 0.15s ease;
+  }
+}
+
+/* ============================================================
+   CUSTOM SCROLLBAR — AI Pulse Dark Theme
+   ============================================================ */
+
+/* Base scrollbar reset */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Dark theme scrollbar — purple tinted, thin */
+.dark ::-webkit-scrollbar-track {
+  background: rgba(10, 10, 26, 0.5);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.3);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.5);
+  background-clip: padding-box;
+}
+
+.dark ::-webkit-scrollbar-thumb:active {
+  background: rgba(139, 92, 246, 0.65);
+  background-clip: padding-box;
+}
+
+/* Light theme scrollbar */
+::-webkit-scrollbar-track {
+  background: rgba(248, 250, 252, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.2);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.35);
+  background-clip: padding-box;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
+}
+
+.dark * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.35) rgba(10, 10, 26, 0.5);
+}
+
+/* ============================================================
+   GRADIENT ANIMATION KEYFRAMES
+   ============================================================ */
+
+/* Pulsing gradient — hero backgrounds, featured sections */
+@keyframes ai-pulse {
+  0%, 100% {
+    background-position: 0% 50%;
+    opacity: 1;
+  }
+  50% {
+    background-position: 100% 50%;
+    opacity: 0.85;
+  }
+}
+
+/* Shimmer sweep — loading states, attention draws */
+@keyframes ai-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Floating motion — hero elements, decorative orbs */
+@keyframes ai-float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-10px) rotate(-1deg);
+  }
+}
+
+/* Glow pulse — card borders, accent elements */
+@keyframes ai-glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.15), 0 0 20px rgba(139, 92, 246, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(139, 92, 246, 0.3), 0 0 40px rgba(139, 92, 246, 0.1);
+  }
+}
+
+/* Gradient border rotation — featured cards */
+@keyframes ai-gradient-rotate {
+  0% {
+    --gradient-angle: 0deg;
+  }
+  100% {
+    --gradient-angle: 360deg;
+  }
+}
+
+/* Breaking news ticker scroll */
+@keyframes ticker-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Fade in up — content entrance */
+@keyframes ai-fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Spin slow — loading indicators */
+@keyframes ai-spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Scale pulse — live indicators */
+@keyframes ai-scale-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.8;
+  }
+}
+
+/* ============================================================
+   UTILITY CLASSES — AI Pulse Brand
+   ============================================================ */
+
+@layer utilities {
+  /* --- Gradient backgrounds --- */
+
+  /* Primary AI gradient (purple → blue → cyan) */
+  .ai-gradient {
+    background: var(--ai-gradient);
+  }
+
+  /* Animated gradient with pulse effect */
+  .ai-gradient-animated {
+    background: linear-gradient(135deg, #8b5cf6, #3b82f6, #06b6d4, #8b5cf6);
+    background-size: 300% 300%;
+    animation: ai-pulse 6s ease-in-out infinite;
+  }
+
+  /* Subtle gradient overlay */
+  .ai-gradient-subtle {
+    background: var(--ai-gradient-subtle);
+  }
+
+  /* Shimmer effect for loading/skeleton */
+  .ai-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(139, 92, 246, 0.08) 25%,
+      rgba(6, 182, 212, 0.08) 50%,
+      rgba(139, 92, 246, 0.08) 75%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: ai-shimmer 2.5s ease-in-out infinite;
+  }
+
+  .dark .ai-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(139, 92, 246, 0.12) 25%,
+      rgba(6, 182, 212, 0.12) 50%,
+      rgba(139, 92, 246, 0.12) 75%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: ai-shimmer 2.5s ease-in-out infinite;
+  }
+
+  /* --- Text gradients --- */
+  .ai-text-gradient {
+    background: var(--ai-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* --- Glassmorphism --- */
+  .ai-glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+  }
+
+  .ai-glass-heavy {
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    border: 1px solid var(--glass-border);
+  }
+
+  /* --- Card hover effects with glow --- */
+  .ai-card {
+    background: var(--card);
+    border: 1px solid var(--ai-card-border);
+    box-shadow: var(--ai-card-shadow);
+    border-radius: var(--radius-lg);
+    transition:
+      box-shadow 0.3s ease,
+      border-color 0.3s ease,
+      transform 0.3s ease;
+  }
+
+  .ai-card:hover {
+    box-shadow: var(--ai-card-hover-shadow);
+    border-color: rgba(139, 92, 246, 0.35);
+    transform: translateY(-2px);
+  }
+
+  .dark .ai-card:hover {
+    border-color: rgba(139, 92, 246, 0.4);
+  }
+
+  /* Card with animated gradient border */
+  .ai-card-glow {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .ai-card-glow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, #8b5cf6, #3b82f6, #06b6d4);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  .ai-card-glow:hover::before {
+    opacity: 1;
+  }
+
+  /* --- Floating animation utility --- */
+  .ai-float {
+    animation: ai-float 6s ease-in-out infinite;
+  }
+
+  .ai-float-delayed {
+    animation: ai-float 6s ease-in-out infinite;
+    animation-delay: -3s;
+  }
+
+  /* --- Glow pulse utility --- */
+  .ai-glow-pulse {
+    animation: ai-glow-pulse 3s ease-in-out infinite;
+  }
+
+  /* --- Fade in up utility --- */
+  .ai-fade-in-up {
+    animation: ai-fade-in-up 0.6s ease-out both;
+  }
+
+  /* Staggered children fade */
+  .ai-fade-in-up-stagger > * {
+    animation: ai-fade-in-up 0.6s ease-out both;
+  }
+
+  .ai-fade-in-up-stagger > *:nth-child(1) { animation-delay: 0ms; }
+  .ai-fade-in-up-stagger > *:nth-child(2) { animation-delay: 80ms; }
+  .ai-fade-in-up-stagger > *:nth-child(3) { animation-delay: 160ms; }
+  .ai-fade-in-up-stagger > *:nth-child(4) { animation-delay: 240ms; }
+  .ai-fade-in-up-stagger > *:nth-child(5) { animation-delay: 320ms; }
+  .ai-fade-in-up-stagger > *:nth-child(6) { animation-delay: 400ms; }
+  .ai-fade-in-up-stagger > *:nth-child(7) { animation-delay: 480ms; }
+  .ai-fade-in-up-stagger > *:nth-child(8) { animation-delay: 560ms; }
+
+  /* --- Spin slow --- */
+  .ai-spin-slow {
+    animation: ai-spin-slow 8s linear infinite;
+  }
+
+  /* --- Live indicator pulse --- */
+  .ai-live-pulse {
+    animation: ai-scale-pulse 2s ease-in-out infinite;
+  }
+
+  /* --- Breaking news ticker --- */
+  .ai-ticker-track {
+    display: flex;
+    animation: ticker-scroll var(--ticker-duration, 30s) linear infinite;
+    width: max-content;
+  }
+
+  .ai-ticker-track:hover {
+    animation-play-state: paused;
+  }
+
+  /* --- Gradient border utility --- */
+  .ai-border-gradient {
+    border: 1px solid transparent;
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    background-image:
+      linear-gradient(var(--card), var(--card)),
+      linear-gradient(135deg, #8b5cf6, #3b82f6, #06b6d4);
+  }
+
+  /* --- Hero section gradient background --- */
+  .ai-hero-gradient {
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.25), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 60%, rgba(59, 130, 246, 0.12), transparent),
+      radial-gradient(ellipse 50% 30% at 20% 80%, rgba(6, 182, 212, 0.1), transparent),
+      var(--background);
+  }
+
+  .dark .ai-hero-gradient {
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.2), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 60%, rgba(59, 130, 246, 0.08), transparent),
+      radial-gradient(ellipse 50% 30% at 20% 80%, rgba(6, 182, 212, 0.06), transparent),
+      var(--background);
+  }
+
+  /* --- Section divider gradient --- */
+  .ai-divider-gradient {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #8b5cf6, #3b82f6, #06b6d4, transparent);
+    opacity: 0.3;
+  }
+
+  /* --- Selection highlight --- */
+  .ai-selection::selection {
+    background: rgba(139, 92, 246, 0.3);
+    color: inherit;
+  }
+
+  /* --- No-scrollbar utility --- */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ============================================================
+   GLOBAL SELECTION
+   ============================================================ */
+
+::selection {
+  background: rgba(139, 92, 246, 0.25);
+  color: inherit;
+}
+
+.dark ::selection {
+  background: rgba(139, 92, 246, 0.35);
+}
+
+/* ============================================================
+   RTL SUPPORT
+   ============================================================ */
+
+[dir="rtl"] {
+  /* Flip directional gradients for RTL */
+  --ai-gradient: linear-gradient(225deg, #8b5cf6, #3b82f6, #06b6d4);
+}
+
+[dir="rtl"] .ai-gradient-animated {
+  background: linear-gradient(225deg, #8b5cf6, #3b82f6, #06b6d4, #8b5cf6);
+  background-size: 300% 300%;
+}
+
+[dir="rtl"] .ai-ticker-track {
+  animation: ticker-scroll-rtl var(--ticker-duration, 30s) linear infinite;
+}
+
+@keyframes ticker-scroll-rtl {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(50%);
+  }
+}
+
+/* RTL-aware margin/padding utilities */
+[dir="rtl"] .ai-ml-auto {
+  margin-left: unset;
+  margin-right: auto;
+}
+
+[dir="rtl"] .ai-mr-auto {
+  margin-right: unset;
+  margin-left: auto;
+}
+
+/* Flip border radius in RTL contexts */
+[dir="rtl"] .ai-rounded-l-lg {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-top-right-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-lg);
+}
+
+[dir="rtl"] .ai-rounded-r-lg {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-top-left-radius: var(--radius-lg);
+  border-bottom-left-radius: var(--radius-lg);
+}
+
+/* ============================================================
+   CUSTOM SCROLL AREA COMPONENT OVERRIDES (dark)
+   ============================================================ */
+
+.dark [data-radix-scroll-area-viewport] {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
+}
+
+.dark [data-radix-scroll-area-viewport]::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.dark [data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.3);
+  border-radius: 9999px;
+}
+
+.dark [data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.5);
+}
+
+/* ============================================================
+   FOCUS RING — AI Pulse style
+   ============================================================ */
+
+:focus-visible {
+  outline: 2px solid rgba(139, 92, 246, 0.5);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.dark :focus-visible {
+  outline-color: rgba(139, 92, 246, 0.7);
+}
+
+/* ============================================================
+   PRINT STYLES
+   ============================================================ */
+
+@media print {
+  .dark {
+    --background: #ffffff;
+    --foreground: #000000;
+    --card: #ffffff;
+    --card-foreground: #000000;
+  }
+
+  .ai-gradient-animated,
+  .ai-shimmer,
+  .ai-float,
+  .ai-glow-pulse,
+  .ai-ticker-track {
+    animation: none !important;
+  }
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .ai-gradient-animated {
+    animation: none;
+    background-size: 100% 100%;
+  }
+
+  .ai-ticker-track {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   COMPONENT OVERRIDES — AI Pulse Brand Polish
+   ============================================================ */
+
+/* Badge gradient variant */
+.badge-ai-gradient {
+  background: linear-gradient(135deg, #8b5cf6, #3b82f6, #06b6d4);
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+}
+
+/* Button gradient variant */
+.btn-ai-gradient {
+  background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+  transition:
+    opacity 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
+}
+
+.btn-ai-gradient:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
+}
+
+.btn-ai-gradient:active {
+  transform: translateY(0);
+  opacity: 0.95;
+}
+
+/* Progress bar gradient */
+.progress-ai {
+  background: linear-gradient(90deg, #8b5cf6, #3b82f6, #06b6d4);
+}
+
+/* Skeleton AI shimmer */
+.skeleton-ai {
+  background: linear-gradient(
+    90deg,
+    var(--muted) 25%,
+    rgba(139, 92, 246, 0.08) 50%,
+    var(--muted) 75%
+  );
+  background-size: 200% 100%;
+  animation: ai-shimmer 1.8s ease-in-out infinite;
+}
+
+.dark .skeleton-ai {
+  background: linear-gradient(
+    90deg,
+    var(--muted) 25%,
+    rgba(139, 92, 246, 0.12) 50%,
+    var(--muted) 75%
+  );
+  background-size: 200% 100%;
+  animation: ai-shimmer 1.8s ease-in-out infinite;
+}
+
+/* Tab active indicator */
+.tab-ai-active {
+  position: relative;
+}
+
+.tab-ai-active::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #8b5cf6, #06b6d4);
+  border-radius: 1px;
+}
+
+/* Navigation link active state */
+.nav-ai-active {
+  background: var(--ai-gradient-subtle);
+  color: #8b5cf6;
+  font-weight: 600;
+}
+
+.dark .nav-ai-active {
+  color: #c4b5fd;
+}
