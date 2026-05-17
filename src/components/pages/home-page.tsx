@@ -99,23 +99,31 @@ interface CategoryDef {
 }
 
 const categories: CategoryDef[] = [
-  { slug: 'general-ai', nameAr: 'النماذج اللغوية', nameEn: 'Large Language Models', icon: Brain, color: '#8b5cf6' },
-  { slug: 'computer-vision', nameAr: 'رؤية الحاسوب', nameEn: 'Computer Vision', icon: Eye, color: '#06b6d4' },
+  { slug: 'general-ai', nameAr: 'الذكاء الاصطناعي العام', nameEn: 'General AI', icon: Brain, color: '#8b5cf6' },
+  { slug: 'computer-vision', nameAr: 'الرؤية الحاسوبية', nameEn: 'Computer Vision', icon: Eye, color: '#06b6d4' },
   { slug: 'robotics', nameAr: 'الروبوتات', nameEn: 'Robotics', icon: Bot, color: '#10b981' },
-  { slug: 'ai-ethics', nameAr: 'أخلاقيات AI', nameEn: 'AI Ethics', icon: Scale, color: '#f59e0b' },
+  { slug: 'ai-ethics', nameAr: 'أخلاقيات الذكاء الاصطناعي', nameEn: 'AI Ethics', icon: Scale, color: '#f59e0b' },
   { slug: 'nlp', nameAr: 'معالجة اللغات الطبيعية', nameEn: 'Natural Language Processing', icon: Cpu, color: '#ef4444' },
   { slug: 'machine-learning', nameAr: 'تعلم الآلة', nameEn: 'Machine Learning', icon: FlaskConical, color: '#6366f1' },
-  { slug: 'generative-ai', nameAr: 'أدوات وتطبيقات', nameEn: 'Tools & Apps', icon: Wrench, color: '#ec4899' },
-  { slug: 'ai-policy', nameAr: 'سياسات وتنظيمات', nameEn: 'Policy & Regulation', icon: Shield, color: '#14b8a6' },
+  { slug: 'generative-ai', nameAr: 'الذكاء الاصطناعي التوليدي', nameEn: 'Generative AI', icon: Wrench, color: '#ec4899' },
+  { slug: 'ai-policy', nameAr: 'سياسات وتنظيمات الذكاء الاصطناعي', nameEn: 'AI Policy & Regulation', icon: Shield, color: '#14b8a6' },
 ]
 
 // Breaking news headlines will be fetched dynamically from the API
 
 // ─── Utility Functions ───────────────────────────────────────────────────────
 
-function formatViews(views: number): string {
-  if (views >= 1000000) return `${(views / 1000000).toFixed(1)}M`
-  if (views >= 1000) return `${(views / 1000).toFixed(1)}K`
+function formatViews(views: number, lang: string = 'ar'): string {
+  if (views >= 1000000) {
+    return lang === 'ar'
+      ? `${(views / 1000000).toFixed(1)} مليون`
+      : `${(views / 1000000).toFixed(1)}M`
+  }
+  if (views >= 1000) {
+    return lang === 'ar'
+      ? `${(views / 1000).toFixed(1)} ألف`
+      : `${(views / 1000).toFixed(1)}K`
+  }
   return views.toString()
 }
 
@@ -624,7 +632,7 @@ function TrendingArticleCard({ article, language, index }: { article: Article; l
             </span>
             <span className="flex items-center gap-1">
               <Eye className="size-3" />
-              {formatViews(article.views)}
+              {formatViews(article.views, language)}
             </span>
           </div>
         </CardContent>
@@ -980,7 +988,7 @@ function LatestArticleCard({ article, language }: { article: Article; language: 
               <span>·</span>
               <span className="flex items-center gap-1">
                 <Eye className="size-3" />
-                {formatViews(article.views)}
+                {formatViews(article.views, language)}
               </span>
             </div>
             <span className="text-xs text-primary font-medium group-hover:gap-1.5 flex items-center gap-1 transition-all">

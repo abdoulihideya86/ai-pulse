@@ -101,11 +101,11 @@ const categoryNames: Record<string, { ar: string; en: string }> = {
   'general-ai': { ar: 'الذكاء الاصطناعي العام', en: 'General AI' },
   'computer-vision': { ar: 'الرؤية الحاسوبية', en: 'Computer Vision' },
   'robotics': { ar: 'الروبوتات', en: 'Robotics' },
-  'ai-ethics': { ar: 'أخلاقيات AI', en: 'AI Ethics' },
-  'nlp': { ar: 'معالجة اللغات الطبيعية', en: 'NLP' },
+  'ai-ethics': { ar: 'أخلاقيات الذكاء الاصطناعي', en: 'AI Ethics' },
+  'nlp': { ar: 'معالجة اللغات الطبيعية', en: 'Natural Language Processing' },
   'machine-learning': { ar: 'تعلم الآلة', en: 'Machine Learning' },
-  'generative-ai': { ar: 'أدوات وتطبيقات', en: 'Tools & Apps' },
-  'ai-policy': { ar: 'سياسات وتنظيمات', en: 'Policy & Regulation' },
+  'generative-ai': { ar: 'الذكاء الاصطناعي التوليدي', en: 'Generative AI' },
+  'ai-policy': { ar: 'سياسات وتنظيمات الذكاء الاصطناعي', en: 'AI Policy & Regulation' },
 }
 
 function DashboardSkeleton() {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { fetchTrendingNews, getBaseViews } from '@/lib/news-service'
+import { fetchTrendingNews, getViews } from '@/lib/news-service'
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,10 +8,10 @@ export async function GET(request: NextRequest) {
 
     const result = await fetchTrendingNews(lang)
 
-    // Overlay view counts from the in-memory counter
+    // Overlay real view counts from the in-memory counter
     const articles = result.articles.map((article) => ({
       ...article,
-      views: getBaseViews(article.id),
+      views: getViews(article.id),
     }))
 
     return NextResponse.json({ ...result, articles })

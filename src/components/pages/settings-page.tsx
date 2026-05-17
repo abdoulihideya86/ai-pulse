@@ -163,16 +163,16 @@ export function SettingsPage() {
 
   // Content preferences categories
   const contentCategories = [
-    { id: 'llm', labelAr: 'النماذج اللغوية', labelEn: 'LLMs' },
-    { id: 'computer-vision', labelAr: 'رؤية الحاسوب', labelEn: 'Computer Vision' },
-    { id: 'nlp', labelAr: 'معالجة اللغة', labelEn: 'NLP' },
+    { id: 'llm', labelAr: 'نماذج اللغة', labelEn: 'LLMs' },
+    { id: 'computer-vision', labelAr: 'الرؤية الحاسوبية', labelEn: 'Computer Vision' },
+    { id: 'nlp', labelAr: 'معالجة اللغات الطبيعية', labelEn: 'Natural Language Processing' },
     { id: 'robotics', labelAr: 'الروبوتات', labelEn: 'Robotics' },
-    { id: 'healthcare', labelAr: 'الذكاء الاصطناعي الطبي', labelEn: 'Healthcare AI' },
-    { id: 'ethics', labelAr: 'أخلاقيات AI', labelEn: 'AI Ethics' },
-    { id: 'business', labelAr: 'الأعمال', labelEn: 'Business' },
+    { id: 'healthcare', labelAr: 'الذكاء الاصطناعي في الصحة', labelEn: 'Healthcare AI' },
+    { id: 'ethics', labelAr: 'أخلاقيات الذكاء الاصطناعي', labelEn: 'AI Ethics' },
+    { id: 'business', labelAr: 'أعمال الذكاء الاصطناعي', labelEn: 'AI Business' },
     { id: 'research', labelAr: 'البحث العلمي', labelEn: 'Research' },
-    { id: 'education', labelAr: 'التعليم', labelEn: 'Education' },
-    { id: 'creative', labelAr: 'الإبداع', labelEn: 'Creative AI' },
+    { id: 'education', labelAr: 'التعليم بالذكاء الاصطناعي', labelEn: 'AI Education' },
+    { id: 'creative', labelAr: 'الذكاء الاصطناعي الإبداعي', labelEn: 'Creative AI' },
   ]
   const [selectedCategories, setSelectedCategories] = useState<string[]>([
     'llm',

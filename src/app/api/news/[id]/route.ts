@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { fetchLiveNews, incrementViews, getBaseViews } from '@/lib/news-service'
+import { fetchLiveNews, incrementViews, getViews } from '@/lib/news-service'
 
 export async function GET(
   request: NextRequest,
@@ -11,9 +11,9 @@ export async function GET(
     const lang = searchParams.get('lang') || 'ar'
     const isAr = lang === 'ar'
 
-    // Increment views for this article (persists in-memory for server lifetime)
+    // Increment views for this article (real tracking — only increments on actual read)
     incrementViews(id)
-    const totalViews = getBaseViews(id)
+    const totalViews = getViews(id)
 
     // Search for article by ID in cached/live data
     // Since we don't have a database, we fetch from cache and find by ID
